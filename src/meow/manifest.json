@@ -5,9 +5,9 @@
   "apiLevel": 2,
   "meta": {
     "name": "meow",
-    "tagline": "A short tagline that appears below the name",
-    "description": "A longer description that can **use Markdown**",
-    "authors": ["You!"],
-    "source": "https://example.com/"
+    "tagline": "meow in chat",
+    "description": "hehe meow button on chatbar",
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
   }
 }
