@@ -1,0 +1,14 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "doubleClickToJoin",
+  "version": "1.0.0",
+  "apiLevel": 2,
+  "meta": {
+    "name": "doubleClickToJoin",
+    "tagline": "prevent accidentally joining vc!",
+    "description": "ignore single clicks on voice channels, only joining if you double click",
+    "tags": ["voice","qol"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  }
+}
