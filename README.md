@@ -1,2 +1,2 @@
 # moonlight-plugins
-plugins for the discord mod Moonlight
+extensions for the discord mod Moonlight
