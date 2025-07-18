@@ -18,5 +18,8 @@
       "advice": "none",
       "default": 500
     }
+  },
+  {
+    "dependencies": ["spacepack","common"]
   }
 }
