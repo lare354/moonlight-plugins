@@ -6,7 +6,7 @@
   "meta": {
     "name": "doubleClickToJoin",
     "tagline": "prevent accidentally joining vc!",
-    "description": "ignore single clicks on voice channels, only joining if you double click \nPorted from vencord: \nhttps://github.com/Vendicated/Vencord/blob/main/src/plugins/vcDoubleClick/index.ts",
+    "description": "ignore single clicks on voice channels, only joining on double clicks",
     "tags": ["voice","qol"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
