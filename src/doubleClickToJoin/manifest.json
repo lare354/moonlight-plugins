@@ -13,13 +13,12 @@
   },
   "settings": {
     "timeoutMs": {
-      "displayName": "Timeout (in ms)",
+      "displayName": "Timeout",
+      "description": "(in ms)",
       "type": "number",
       "advice": "none",
       "default": 500
     }
   },
-  {
-    "dependencies": ["spacepack","common"]
-  }
+  "dependencies": ["spacepack","common"]
 }
