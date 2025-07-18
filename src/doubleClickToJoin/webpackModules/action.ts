@@ -13,7 +13,6 @@ const timers = {} as Record<string, {
 };
 
 export function schedule(cb: () => void, e: any) {
-    const timeoutMs = moonlight.getConfigOption<number>("doubleClickToJoin", "timeoutMs") ?? 500;
     const id = e.props.channel.id as string;
     if (SelectedChannelStore.getVoiceChannelId() === id) {
         cb();
@@ -32,6 +31,6 @@ export function schedule(cb: () => void, e: any) {
         // else reset the counter in 500ms or user set timeout if changed
         data.timeout = setTimeout(() => {
             delete timers[id];
-        }, timeoutMs);
+        }, 500);
     }
 };

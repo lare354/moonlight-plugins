@@ -11,14 +11,5 @@
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
   },
-  "settings": {
-    "timeoutMs": {
-      "displayName": "Timeout",
-      "description": "(in ms)",
-      "type": "number",
-      "advice": "none",
-      "default": 500
-    }
-  },
   "dependencies": ["spacepack","common"]
 }
