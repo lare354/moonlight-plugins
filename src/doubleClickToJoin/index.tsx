@@ -2,24 +2,14 @@ import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
 export const patches: Patch[] = [
   {
-    // voice channels
-    find: ".handleVoiceStatusClick",
-    replace: [
-      {
-        match: /onClick:\(\)=>\{this.handleClick\(\)/g,
-        replacement: 'onClick:()=>{require("doubleClickToJoin_action")?.schedule(()=>{this.handleClick()},this)',
-      },
-    ]
-  },
-  {
-    // stage channels
-    find: ".handleClickChat",
-    replace: [
-      {
-        match: /onClick:\(\)=>\{this.handleClick\(\)/g,
-        replacement: 'onClick:()=>{require("doubleClickToJoin_action")?.schedule(()=>{this.handleClick()},this)',  
-      },
-    ]
+    // voice and stage channels (thank you Nanakusa :3)
+    find: ".iconContainerWithGuildIcon", 
+    replace: [ 
+      { 
+        match: ".link,onClick:", 
+        replacement: () => `.link,onClick:()=>null,onDoubleClick:` 
+      }, 
+    ], 
   },
   {
     // channel mentions
