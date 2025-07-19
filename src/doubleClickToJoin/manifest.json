@@ -6,7 +6,7 @@
   "meta": {
     "name": "doubleClickToJoin",
     "tagline": "prevent accidentally joining vc!",
-    "description": "ignore single clicks on voice channels, only joining on double clicks \ncurrently works on channel mentions, channel list in guild, call buttons in dms and channels in the 'Active Now' tab.,
+    "description": "ignore single clicks on voice channels, only joining on double clicks \ncurrently works on channel mentions, channel list in guild, call buttons in dms and channels in the 'Active Now' tab.",
     "tags": ["voice","qol"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
