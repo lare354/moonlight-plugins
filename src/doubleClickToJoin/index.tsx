@@ -20,7 +20,7 @@ export const patches: Patch[] = [
         replacement: (_, onClick, props) => "" 
           + `onClick:(vcDoubleClickEvt)=>require("doubleClickToJoin_action")?.shouldRunOnClick(vcDoubleClickEvt,${props})&&${onClick}()`,
       },
-    ]
+    ],
   },
   {
     // call icons in DM (thank you Nanakusa :3)
@@ -46,14 +46,25 @@ export const patches: Patch[] = [
         `${prefix}onDoubleClick:${condition}arguments[0]?.onDoubleClick,`, 
       }, 
     ], 
-   }
+  },
+  {
+    // activity tab
+    find: '.voiceSection,ref',
+    replace: [
+      {
+        match: /onClick:\s?\(\)\s?=>/g,
+        replacement: `onClick:()=>null,onDoubleClick:()=>`,
+      },
+    ],
+  },
 ];
 
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
   action: {
     dependencies: [
       { ext: "spacepack", id: "spacepack" },
-      { ext: "common", id: "stores" }
-    ]
-  }
+      { ext: "common", id: "stores" },
+      ".voiceSection,ref"
+    ],
+  },
 };
