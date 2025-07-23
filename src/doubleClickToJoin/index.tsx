@@ -5,9 +5,9 @@ export const patches: Patch[] = [
     // voice and stage channels (thank you Nanakusa :3)
     find: ".iconContainerWithGuildIcon", 
     replace: [ 
-      { 
-        match: ".link,onClick:", 
-        replacement: () => `.link,onClick:()=>null,onDoubleClick:` 
+      {
+      	match: ".link,onClick:", 
+	    replacement: () => `.link,onClick:()=>require("doubleClickToJoin_action")?._handleClick(arguments[0]),onDoubleClick:`,
       }, 
     ], 
   },
@@ -64,7 +64,6 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
     dependencies: [
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
-      ".voiceSection,ref"
     ],
   },
 };
