@@ -1,0 +1,14 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "questCompleter",
+  "version": "1.0.0",
+  "apiLevel": 2,
+  "meta": {
+    "name": "Quest completer",
+    "tagline": "Complete quests!",
+    "tags": ["qol","dangerZone"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  },
+  "dependencies": ["spacepack","common"]
+}
