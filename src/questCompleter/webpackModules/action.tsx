@@ -1,23 +1,15 @@
-import spacepack from "@moonlight-mod/wp/spacepack_spacepack";;
+import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 import React from '@moonlight-mod/wp/react';
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
+import { ApplicationStreamingStore, RunningGameStore, QuestsStore, ChannelStore, GuildChannelStore } from "@moonlight-mod/wp/common_stores";
+import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
+const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
 
 const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.Z;
+let isApp = !moonlightNode.isBrowser;
 let hoverStatus = null;
 
 export function completeQuest() {
-  delete window.$;
-  let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
-  webpackChunkdiscord_app.pop();
-
-  let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getStreamerActiveStreamMetadata).exports.Z;
-  let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.ZP?.getRunningGames).exports.ZP;
-  let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
-  let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getAllThreadsForParent).exports.Z;
-  let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.ZP?.getSFWDefaultChannel).exports.ZP;
-  let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.flushWaitQueue).exports.Z;
-  let api = Object.values(wpRequire.c).find(x => x?.exports?.tn?.get).exports.tn;
-
   let quest = [...QuestsStore.quests.values()].find(x => x.id !== "1248385850622869556" && x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now())
   let isApp = typeof DiscordNative !== "undefined"
   if(!quest) {
@@ -43,7 +35,7 @@ export function completeQuest() {
           const diff = maxAllowed - secondsDone
           const timestamp = secondsDone + speed
           if(diff >= speed) {
-            const res = await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}})
+            const res = await HTTP.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}})
             completed = res.body.completed_at != null
             secondsDone = Math.min(secondsNeeded, timestamp)
           }
@@ -54,7 +46,7 @@ export function completeQuest() {
           await new Promise(resolve => setTimeout(resolve, interval * 1000))
         }
         if(!completed) {
-          await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}})
+          await HTTP.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}})
         }
         console.log("Quest completed!")
       }
@@ -64,7 +56,7 @@ export function completeQuest() {
       if(!isApp) {
         console.log("This no longer works in browser for non-video quests. Use the desktop app to complete the", questName, "quest!")
       } else {
-        api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
+        HTTP.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
           const appData = res.body[0]
           const exeName = appData.executables.find(x => x.os === "win32").name.replace(">","")
 
@@ -87,7 +79,7 @@ export function completeQuest() {
           const realGetGameForPID = RunningGameStore.getGameForPID
           RunningGameStore.getRunningGames = () => fakeGames
           RunningGameStore.getGameForPID = (pid) => fakeGames.find(x => x.pid === pid)
-          FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames})
+          Dispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames})
 
           let fn = data => {
             let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value)
@@ -100,11 +92,11 @@ export function completeQuest() {
 
               RunningGameStore.getRunningGames = realGetRunningGames
               RunningGameStore.getGameForPID = realGetGameForPID
-              FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []})
-              FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
+              Dispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []})
+              Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
             }
           }
-          FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
+          Dispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
 
           console.log(`Spoofed your game to ${applicationName}. Wait for ${Math.ceil((secondsNeeded - secondsDone) / 60)} more minutes.`)
         })
@@ -130,10 +122,10 @@ export function completeQuest() {
             hoverStatus = null
 
             ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc
-            FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
+            Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
           }
         }
-        FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
+        Dispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
 
         console.log(`Spoofed your stream to ${applicationName}. Stream any window in vc for ${Math.ceil((secondsNeeded - secondsDone) / 60)} more minutes.`)
         console.log("Remember that you need at least 1 other person to be in the vc!")
@@ -146,7 +138,7 @@ export function completeQuest() {
         console.log("Completing quest", questName, "-", quest.config.messages.questName)
 
         while(true) {
-          const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}})
+          const res = await HTTP.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}})
           const progress = res.body.progress.PLAY_ACTIVITY.value
           console.log(`Quest progress: ${progress}/${secondsNeeded}`)
           hoverStatus = (`${progress}/${secondsNeeded}`)
@@ -154,7 +146,7 @@ export function completeQuest() {
           await new Promise(resolve => setTimeout(resolve, 20 * 1000))
 
           if(progress >= secondsNeeded) {
-            await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}})
+            await HTTP.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}})
             break
           }
         }
