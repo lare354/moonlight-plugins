@@ -7,7 +7,7 @@
     "name": "Quest completer",
     "tagline": "Complete quests!",
     "description": "Finds accepted quests and automatically completes them. !! remember to accept the quest for this to work !!",
-    "tags": ["qol","dangerZone","commands"],
+    "tags": ["qol","dangerZone"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
   },

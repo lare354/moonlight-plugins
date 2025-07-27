@@ -14,7 +14,6 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
   action: {
     dependencies: [
       { ext: "spacepack", id: "spacepack" },
-      { ext: "commands", id: "commands" },
       { ext: "common", id: "stores" },
       { ext: "common", id: "ErrorBoundary" },
       { id: "react" },

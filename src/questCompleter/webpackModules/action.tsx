@@ -1,6 +1,4 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";;
-import Commands from "@moonlight-mod/wp/commands_commands";
-import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
 import React from '@moonlight-mod/wp/react';
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 
@@ -197,13 +195,3 @@ export function CompleteQuestButton() {
   </ErrorBoundary>
 }
 
-Commands.registerCommand({
-  id: "completeQuest",
-  description: "completes accepted quests!",
-  inputType: InputType.BUILT_IN,
-  type: CommandType.CHAT,
-  options: [],
-  execute: () => {
-    completeQuest();
-  }
-});
