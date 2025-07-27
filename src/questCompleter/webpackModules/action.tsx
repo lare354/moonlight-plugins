@@ -183,7 +183,7 @@ function makeIcon() {
 export function CompleteQuestButtonInternal() {
   return (
     <Button
-      tooltipText={(hoverStatus = null) ? hoverStatus : "Complete quest!"}
+      tooltipText={(hoverStatus === null) ? "Complete quest!" : `Quest progress: ${hoverStatus}` }
       icon={makeIcon()}
       role="button"
       onClick={ () => completeQuest() }
