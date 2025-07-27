@@ -1,8 +1,13 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";;
 import Commands from "@moonlight-mod/wp/commands_commands";
 import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
+import React from '@moonlight-mod/wp/react';
+import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 
-function completeQuest() {
+const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.Z;
+let hoverStatus = null;
+
+export function completeQuest() {
   delete window.$;
   let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
   webpackChunkdiscord_app.pop();
@@ -69,14 +74,14 @@ function completeQuest() {
             cmdLine: `C:\\Program Files\\${appData.name}\\${exeName}`,
             exeName,
             exePath: `c:/program files/${appData.name.toLowerCase()}/${exeName}`,
-                                                                                     hidden: false,
-                                                                                     isLauncher: false,
-                                                                                     id: applicationId,
-                                                                                     name: appData.name,
-                                                                                     pid: pid,
-                                                                                     pidPath: [pid],
-                                                                                     processName: appData.name,
-                                                                                     start: Date.now(),
+            hidden: false,
+            isLauncher: false,
+            id: applicationId,
+            name: appData.name,
+            pid: pid,
+            pidPath: [pid],
+            processName: appData.name,
+            start: Date.now(),
           }
           const realGames = RunningGameStore.getRunningGames()
           const fakeGames = [fakeGame]
@@ -89,9 +94,11 @@ function completeQuest() {
           let fn = data => {
             let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value)
             console.log(`Quest progress: ${progress}/${secondsNeeded}`)
+            hoverStatus = (`${progress}/${secondsNeeded}`)
 
             if(progress >= secondsNeeded) {
               console.log("Quest completed!")
+              hoverStatus = null
 
               RunningGameStore.getRunningGames = realGetRunningGames
               RunningGameStore.getGameForPID = realGetGameForPID
@@ -118,9 +125,11 @@ function completeQuest() {
         let fn = data => {
           let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value)
           console.log(`Quest progress: ${progress}/${secondsNeeded}`)
+          hoverStatus = (`${progress}/${secondsNeeded}`)
 
           if(progress >= secondsNeeded) {
             console.log("Quest completed!")
+            hoverStatus = null
 
             ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc
             FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn)
@@ -142,6 +151,7 @@ function completeQuest() {
           const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}})
           const progress = res.body.progress.PLAY_ACTIVITY.value
           console.log(`Quest progress: ${progress}/${secondsNeeded}`)
+          hoverStatus = (`${progress}/${secondsNeeded}`)
 
           await new Promise(resolve => setTimeout(resolve, 20 * 1000))
 
@@ -152,12 +162,40 @@ function completeQuest() {
         }
 
         console.log("Quest completed!")
+        hoverStatus = null
       }
       fn()
     }
   }
-};
+}
 
+function makeIcon() {
+  return () => (
+    <svg width="20" height="20" viewBox="0 0 24 24">
+      <path
+        fill={"currentColor"}
+        d="M7.5 21.7a8.95 8.95 0 0 1 9 0 1 1 0 0 0 1-1.73c-.6-.35-1.24-.64-1.9-.87.54-.3 1.05-.65 1.52-1.07a3.98 3.98 0 0 0 5.49-1.8.77.77 0 0 0-.24-.95 3.98 3.98 0 0 0-2.02-.76A4 4 0 0 0 23 10.47a.76.76 0 0 0-.71-.71 4.06 4.06 0 0 0-1.6.22 3.99 3.99 0 0 0 .54-5.35.77.77 0 0 0-.95-.24c-.75.36-1.37.95-1.77 1.67V6a4 4 0 0 0-4.9-3.9.77.77 0 0 0-.6.72 4 4 0 0 0 3.7 4.17c.89 1.3 1.3 2.95 1.3 4.51 0 3.66-2.75 6.5-6 6.5s-6-2.84-6-6.5c0-1.56.41-3.21 1.3-4.51A4 4 0 0 0 11 2.82a.77.77 0 0 0-.6-.72 4.01 4.01 0 0 0-4.9 3.96A4.02 4.02 0 0 0 3.73 4.4a.77.77 0 0 0-.95.24 3.98 3.98 0 0 0 .55 5.35 4 4 0 0 0-1.6-.22.76.76 0 0 0-.72.71l-.01.28a4 4 0 0 0 2.65 3.77c-.75.06-1.45.33-2.02.76-.3.22-.4.62-.24.95a4 4 0 0 0 5.49 1.8c.47.42.98.78 1.53 1.07-.67.23-1.3.52-1.91.87a1 1 0 1 0 1 1.73Z"
+      />
+    </svg>
+  );
+}
+
+export function CompleteQuestButtonInternal() {
+  return (
+    <Button
+      tooltipText={(hoverStatus = null) ? hoverStatus : "Complete quest!"}
+      icon={makeIcon()}
+      role="button"
+      onClick={ () => completeQuest() }
+    />
+  );
+}
+
+export function CompleteQuestButton() {
+  return <ErrorBoundary>
+    <CompleteQuestButtonInternal />
+  </ErrorBoundary>
+}
 
 Commands.registerCommand({
   id: "completeQuest",
