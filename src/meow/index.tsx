@@ -1,29 +1,24 @@
-import { ExtensionWebExports } from "@moonlight-mod/types";
+import { ExtensionWebExports Patch } from "@moonlight-mod/types";
 
-// https://moonlight-mod.github.io/ext-dev/webpack/#patching
-export const patches: ExtensionWebExports["patches"] = [
+export const patches: Patch[] = [
   {
-    find: /"User Settings",/g,
+    find: "shouldShowSpeakingWhileMutedTooltip",
     replace: {
-      match: /"User Settings",/g,
-      replacement: '"hacked by meow lol",'
-    }
-  }
+      match: /className:\i\.buttons,.{0,50}children:\[/,
+      replacement: "$&require('questCompleter_action').CompleteQuestButton(),"
+    },
+  },
 ];
 
-// https://moonlight-mod.github.io/ext-dev/webpack/#webpack-module-insertion
-export const webpackModules: ExtensionWebExports["webpackModules"] = {
-  entrypoint: {
+export const webpackModules: Record<string, ExtensionWebpackModule> = {
+  action: {
     dependencies: [
-      {
-        ext: "meow",
-        id: "someLibrary"
-      }
+      { ext: "spacepack", id: "spacepack" },
+      { ext: "common", id: "stores" },
+      { ext: "common", id: "ErrorBoundary" },
+      { id: "discord/Dispatcher" },
+      { id: "discord/utils/HTTPUtils" },
+      { id: "react" },
     ],
-    entrypoint: true
   },
-
-  someLibrary: {
-    // Keep this object, even if it's empty! It's required for the module to be loaded.
-  }
 };

@@ -7,7 +7,9 @@
     "name": "meow",
     "tagline": "meow in chat !WIP!",
     "description": "hehe meow button on chatbar",
+    "tags": ["chat","fun"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
-  }
+  },
+  "dependencies": ["spacepack","common"]
 }
