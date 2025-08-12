@@ -1,17 +1,10 @@
 import { ExtensionWebExports, Patch } from "@moonlight-mod/types";
 
 export const patches: Patch[] = [
-  {
-    find: "shouldShowSpeakingWhileMutedTooltip",
-    replace: {
-      match: /className:\i\.buttons,.{0,50}children:\[/,
-      replacement: "$&require('meow_action').MeowButton(),"
-    },
-  },
 ];
 
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
-  action: {
+  entrypoint: {
     dependencies: [
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
@@ -19,6 +12,8 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { id: "discord/Dispatcher" },
       { id: "discord/utils/HTTPUtils" },
       { id: "react" },
+      { ext: "componentEditor", id: "chatButtonList" },
     ],
+    entrypoint: true,
   },
 };
