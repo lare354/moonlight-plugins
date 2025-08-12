@@ -11,5 +11,5 @@
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
   },
-  "dependencies": ["spacepack","common","componentEditor"]
+  "dependencies": ["spacepack","common","componentEditor","moonbase"]
 }
