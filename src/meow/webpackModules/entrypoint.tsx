@@ -31,9 +31,11 @@ function MeowButtonInternal() {
 }
 
 function MeowButton() {
-  return <ErrorBoundary>
-    <MeowButtonInternal />
-  </ErrorBoundary>
+  return ( 
+    <ErrorBoundary>
+      <MeowButtonInternal />
+    </ErrorBoundary>
+  );
 }
 
 function addMeowButton() {

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "quickDelete",
+  "version": "1.0.0",
+  "apiLevel": 2,
+  "meta": {
+    "name": "Quick delete",
+    "tagline": "streamine deleting messages",
+    "description": "hold backspace + click message to delete it",
+    "tags": ["qol","chat"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  },
+  "dependencies": ["spacepack","common"]
+}
