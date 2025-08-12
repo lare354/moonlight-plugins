@@ -38,9 +38,5 @@ function MeowButton() {
   );
 }
 
-function addMeowButton() {
-  ChatButtonList.addButton(meowButton, MeowButton, "gif", true)
-}
-
-addMeowButton()
+ChatButtonList.addButton(meowButton, MeowButton, "gif", true);
 
