@@ -4,7 +4,6 @@ import { ChatButtonList } from "@moonlight-mod/wp/componentEditor_chatButtonList
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 
 async function handleButtonClick() {
-    // @ts-expect-error typing issue
     sendMessage(ChannelStore.getCurrentChannel().id, { content: "meow" });
 }
 
