@@ -5,11 +5,25 @@
   "apiLevel": 2,
   "meta": {
     "name": "meow",
-    "tagline": "meow in chat !WIP!",
+    "tagline": "meow (or bark :p) in chat",
     "description": "hehe meow button on chatbar",
     "tags": ["chat","fun"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
   },
-  "dependencies": ["spacepack","common","componentEditor"]
+  "dependencies": ["spacepack","common","componentEditor"],
+  "settings": {
+    "meow": {
+      "displayName": "meow",
+      "type": "boolean",
+      "default": true,
+      "advice": "reload"
+    },
+   "woof": {
+      "displayName": "woof",
+      "type": "boolean",
+      "default": false,
+      "advice": "reload"
+    } 
+  }
 }
