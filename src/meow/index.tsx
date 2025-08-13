@@ -8,6 +8,8 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { ext: "common", id: "ErrorBoundary" },
       { ext: "componentEditor", id: "chatButtonList" },
       { id: "discord/actions/MessageActionCreators"},
+      ",expressionPickerPositionLayer:",
+      "CHAT_INPUT_BUTTON_NOTIFICATION,width",
     ],
     entrypoint: true,
   },
