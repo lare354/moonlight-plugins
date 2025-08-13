@@ -10,13 +10,16 @@ const ChatBarButton = spacepack.findByCode("CHAT_INPUT_BUTTON_NOTIFICATION,width
 const ButtonStyles = spacepack.findByCode(",expressionPickerPositionLayer:")[0].exports;
 const getNonce = spacepack.findByCode(".fromTimestampWithSequence")[0].exports.r;
 
+const meowMsgs = ["meow", "mew", "nyan", "nya", "myaow", "mreow", "mrow"];
+const woofMsgs = ["woof", "arf", "bark", "wruff", "ruff", "awruff"];
+
 let meowBtn = moonlight.getConfigOption<boolean>("meow", "meow") ?? true;
 let woofBtn = moonlight.getConfigOption<boolean>("meow", "woof") ?? false;
 
 function MeowButton() {
   function onClick() {
     let channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-    sendMessage(channel.id, { content: "meow" }, void 0, { nonce: getNonce() });
+    sendMessage(channel.id, { content: meowMsgs[Math.floor(Math.random() * meowMsgs.length)] }, void 0, { nonce: getNonce() });
   }
   
   return (
@@ -43,7 +46,7 @@ function WoofButton() {
 
   function onClick() {
     let channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-    sendMessage(channel.id, { content: "woof" }, void 0, { nonce: getNonce() });
+    sendMessage(channel.id, { content: woofMsgs[Math.floor(Math.random() * woofMsgs.length)] }, void 0, { nonce: getNonce() });
   }
 
   return (
