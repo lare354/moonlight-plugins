@@ -1,2 +1,3 @@
-# moonlight-plugins
-extensions for the discord mod Moonlight
+# Lares Moonlight Extensions
+
+##https://lare354.github.io/moonlight-plugins/repo.json
