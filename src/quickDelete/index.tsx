@@ -5,7 +5,7 @@ export const patches: Patch[] = [
     find: '["className","compact","contentOnly","zalgo",',
     replace: {
       match: "}),ref:",
-      replacement: '}),onClick:(event)=>require("quickDelete_action")?.default?.(arguments[0].childrenMessageContent.props,event),ref:'
+      replacement: '}),onMouseUp:(event)=>require("quickDelete_action")?.default?.(arguments[0].childrenMessageContent.props,event),ref:'
     }
   }
 ];

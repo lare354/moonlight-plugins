@@ -25,7 +25,7 @@ function keyUp(keyevent) {
     console.log("backspace is set to False");
 };
 
-export default function onClick({ message }: { message: any }, event: MouseEvent) {
+export default function onMouseUp({ message }: { message: any }, event: MouseEvent) {
 
     const self = UserStore.getCurrentUser();
     const channelId = message.channel_id;
