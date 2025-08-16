@@ -1,7 +1,9 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
-import { ChannelStore, UserStore, PermissionStore } from "@moonlight-mod/wp/common_stores";
+import { ChannelStore, UserStore, PermissionStore, PermissionsBits } from "@moonlight-mod/wp/common_stores";
+import { Permissions } from "@moonlight-mod/wp/discord/Constants";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
+
 
 window.addEventListener("keydown", keyDown);
 window.addEventListener("keyup", keyUp);
@@ -25,11 +27,12 @@ function keyUp(keyevent) {
     console.log("backspace is set to False");
 };
 
-export default function onMouseUp({ message }: { message: any }, event: MouseEvent) {
+export default function onClick({ message }: { message: any }, event: MouseEvent) {
 
     const self = UserStore.getCurrentUser();
     const channelId = message.channel_id;
     const messageId = message.id
+    const channel = ChannelStore.getChannel(channelId);
 
     console.log("message click!");
 
@@ -41,7 +44,7 @@ export default function onMouseUp({ message }: { message: any }, event: MouseEve
             
         // 8192 === MANAGE_MESSAGES (https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
         // Checks if user has permission to delete messages in current channel
-        const hasPermission = PermissionStore.can(8192n, message.channel_id);
+        const hasPermission = PermissionStore.can(Permissions.MANAGE_MESSAGES, channel);
         if (!hasPermission) {
             console.log("Cannot delete message");
             return;
