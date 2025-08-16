@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "apiLevel": 2,
   "meta": {
-    "name": "Quick delete",
+    "name": "Quick Delete",
     "tagline": "streamine deleting messages",
     "description": "hold backspace + click message to delete it",
     "tags": ["qol","chat"],
