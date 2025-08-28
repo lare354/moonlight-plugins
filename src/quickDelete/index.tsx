@@ -6,8 +6,8 @@ export const patches: Patch[] = [
     replace: {
       match: 'role:"article",onMouseEnter:',
       replacement: 'role:"article",onClick:(event)=>require("quickDelete_action")?.default?.(arguments[0].childrenMessageContent.props,event),onMouseEnter:'
-    }
-  }
+    },
+  },
 ];
 
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
@@ -15,9 +15,9 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
     dependencies: [
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
-      { id: "discord/Dispatcher" },
-      { id: "discord/utils/HTTPUtils" },
+      { id: "react" },
       { id: "@moonlight-mod/wp/discord/Constants" },
+      { id: "discord/actions/MessageActionCreators" },
     ],
     entrypoint: true,
   },

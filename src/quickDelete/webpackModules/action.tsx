@@ -1,31 +1,19 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 import { ChannelStore, UserStore, PermissionStore, PermissionsBits } from "@moonlight-mod/wp/common_stores";
 import { Permissions } from "@moonlight-mod/wp/discord/Constants";
-import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
-const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
+import React from "@moonlight-mod/wp/react";
 
+const { MessageActionCreators } = spacepack.require("discord/actions/MessageActionCreators")[0].default;
 
-window.addEventListener("keydown", keyDown);
-window.addEventListener("keyup", keyUp);
+document.addEventListener("keydown", keyDown);
+document.addEventListener("keyup", keyUp);
 
+// sets value depending on if quickDelete button is currently pressed or not
 
-// sets backspace value depending on if it is currently pressed or not
-let backspace = false; 
-function keyDown(keyevent) {
-    if (backspace) return;
-    if (keyevent.key !== "Backspace") return;
+let isDeletePressed = false;
+const keyDown = (e: KeyboardEvent) => e.key === "Backspace" && (isDeletePressed = true);
+const keyUp =  (e: KeyboardEvent) => e.key === "Backspace" && (isDeletePressed = false);
 
-    backspace = true;
-    console.log("backspace is set to True");
-};
-
-function keyUp(keyevent) {
-    if (!backspace) return;
-    if (keyevent.key !== "Backspace") return;
-
-    backspace = false;
-    console.log("backspace is set to False");
-};
 
 export default function onClick({ message }: { message: any }, event: MouseEvent) {
 
@@ -36,13 +24,12 @@ export default function onClick({ message }: { message: any }, event: MouseEvent
 
     console.log("message click!");
 
-    if(!backspace){
+    if(!isDeletePressed){
         return;
     }
 
     if(message.author.id !== self.id) {
             
-        // 8192 === MANAGE_MESSAGES (https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
         // Checks if user has permission to delete messages in current channel
         const hasPermission = PermissionStore.can(Permissions.MANAGE_MESSAGES, channel);
         if (!hasPermission) {
@@ -51,14 +38,5 @@ export default function onClick({ message }: { message: any }, event: MouseEvent
         }
     }
 
-    Dispatcher.dispatch({
-        type: "MESSAGE_DELETE",
-        messageId,
-        channelId,
-    });
-
-    HTTP.del(`/channels/${channelId}/messages/${messageId}`)
-        .then(() => console.log("Message deleted successfully"))
-        .catch((err) => console.error("Failed to delete message:", err));
-
+    MessageActionCreators.deleteMesage(channelId, messageId);
 }
