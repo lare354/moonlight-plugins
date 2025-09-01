@@ -5,14 +5,14 @@ import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
     find: '["className","compact","contentOnly","zalgo",',
     replace: {
       match: 'role:"article",onMouseEnter:',
-      replacement: 'role:"article",onClick:(event)=>require("quickDelete_action")?.default?.(arguments[0].childrenMessageContent.props,event),onMouseEnter:'
+      replacement: 'role:"article",onClick:(event)=>require("quickDelete_entrypoint")?.default?.(arguments[0].childrenMessageContent.props,event),onMouseEnter:'
     },
   },
 ];
 */
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
   action: {
-    dependencies: [
+    entrypoint: [
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
       { id: "react" },
