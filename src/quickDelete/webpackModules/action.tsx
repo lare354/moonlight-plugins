@@ -1,19 +1,30 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
-import { ChannelStore, UserStore, PermissionStore, PermissionsBits } from "@moonlight-mod/wp/common_stores";
+import { ChannelStore, UserStore, PermissionStore } from "@moonlight-mod/wp/common_stores";
 import { Permissions } from "@moonlight-mod/wp/discord/Constants";
 import React from "@moonlight-mod/wp/react";
 
-const { MessageActionCreators } = spacepack.require("discord/actions/MessageActionCreators")[0].default;
+const { deleteMessage } = spacepack.require("discord/actions/MessageActionCreators").deleteMessage;
 
-document.addEventListener("keydown", keyDown);
-document.addEventListener("keyup", keyUp);
+window.addEventListener("keydown", keyDown);
+window.addEventListener("keyup", keyUp);
 
-// sets value depending on if quickDelete button is currently pressed or not
+// sets backspace value depending on if it is currently pressed or not
+let backspace = false; 
+function keyDown(keyevent) {
+    if (backspace) return;
+    if (keyevent.key !== "Backspace") return;
 
-let isDeletePressed = false;
-const keyDown = (e: KeyboardEvent) => e.key === "Backspace" && (isDeletePressed = true);
-const keyUp =  (e: KeyboardEvent) => e.key === "Backspace" && (isDeletePressed = false);
+    backspace = true;
+    console.log("backspace is set to True");
+};
 
+function keyUp(keyevent) {
+    if (!backspace) return;
+    if (keyevent.key !== "Backspace") return;
+
+    backspace = false;
+    console.log("backspace is set to False");
+};
 
 export default function onClick({ message }: { message: any }, event: MouseEvent) {
 
@@ -38,5 +49,5 @@ export default function onClick({ message }: { message: any }, event: MouseEvent
         }
     }
 
-    MessageActionCreators.deleteMesage(channelId, messageId);
+    deleteMesage(channelId, messageId);
 }

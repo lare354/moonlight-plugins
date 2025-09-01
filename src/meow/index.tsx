@@ -1,4 +1,4 @@
-import { ExtensionWebExports, Patch } from "@moonlight-mod/types";
+import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
   entrypoint: {

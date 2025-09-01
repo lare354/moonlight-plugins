@@ -1,6 +1,6 @@
 import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
-export const patches: Patch[] = [
+/*export const patches: Patch[] = [
   {
     find: '["className","compact","contentOnly","zalgo",',
     replace: {
@@ -9,7 +9,7 @@ export const patches: Patch[] = [
     },
   },
 ];
-
+*/
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
   action: {
     dependencies: [
