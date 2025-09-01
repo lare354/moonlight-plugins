@@ -2,8 +2,7 @@ import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 import { ChannelStore, UserStore, PermissionStore } from "@moonlight-mod/wp/common_stores";
 import { Permissions } from "@moonlight-mod/wp/discord/Constants";
 import React from "@moonlight-mod/wp/react";
-
-const { deleteMessage } = spacepack.require("discord/actions/MessageActionCreators").deleteMessage;
+import MessageActionCreators from '@moonlight-mod/wp/discord/actions/MessageActionCreators';
 
 window.addEventListener("keydown", keyDown);
 window.addEventListener("keyup", keyUp);
@@ -35,7 +34,7 @@ export function _onClick({ message }: { message: any }, event: MouseEvent) {
 
     console.log("message click!");
 
-    if(!isDeletePressed){
+    if(!backspace){
         return;
     }
 
@@ -49,5 +48,5 @@ export function _onClick({ message }: { message: any }, event: MouseEvent) {
         }
     }
 
-    deleteMesage(channelId, messageId);
+    MessageActionCreators.deleteMessage(channelId, messageId);
 }

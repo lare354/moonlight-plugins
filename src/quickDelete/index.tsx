@@ -16,7 +16,7 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
       { id: "react" },
-      { id: "@moonlight-mod/wp/discord/Constants" },
+      //{ id: "@moonlight-mod/wp/discord/Constants" },
       { id: "discord/actions/MessageActionCreators" },
     ],
     entrypoint: true,
