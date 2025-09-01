@@ -19,7 +19,6 @@ function keyDown(keyevent) {
     else if (keyevent.key !== "Backspace") return;
 
     backspace = true;
-    console.log("backspace is set to True");
 };
 
 function keyUp(keyevent) {
@@ -30,7 +29,6 @@ function keyUp(keyevent) {
     else if (keyevent.key !== "Backspace") return;
 
     backspace = false;
-    console.log("backspace is set to False");
 };
 
 export function _onClick({ message }: { message: any }, event: MouseEvent) {
@@ -39,8 +37,6 @@ export function _onClick({ message }: { message: any }, event: MouseEvent) {
     const channelId = message.channel_id;
     const messageId = message.id;
     const channel = ChannelStore.getChannel(channelId);
-
-    console.log("message click!");
 
     if(!backspace){
         return;
