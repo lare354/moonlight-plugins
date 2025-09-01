@@ -9,9 +9,14 @@ window.addEventListener("keyup", keyUp);
 
 // sets backspace value depending on if it is currently pressed or not
 let backspace = false; 
+let useDelete = moonlight.getConfigOption<boolean>("quickDelete", "useDelete") ?? false;
+
 function keyDown(keyevent) {
     if (backspace) return;
-    if (keyevent.key !== "Backspace") return;
+    if (useDelete) {
+        if (keyevent.key !== "Delete") return;
+    }
+    else if (keyevent.key !== "Backspace") return;
 
     backspace = true;
     console.log("backspace is set to True");
@@ -19,7 +24,10 @@ function keyDown(keyevent) {
 
 function keyUp(keyevent) {
     if (!backspace) return;
-    if (keyevent.key !== "Backspace") return;
+    if (useDelete) {
+        if (keyevent.key !== "Delete") return;
+    }
+    else if (keyevent.key !== "Backspace") return;
 
     backspace = false;
     console.log("backspace is set to False");
@@ -29,7 +37,7 @@ export function _onClick({ message }: { message: any }, event: MouseEvent) {
 
     const self = UserStore.getCurrentUser();
     const channelId = message.channel_id;
-    const messageId = message.id
+    const messageId = message.id;
     const channel = ChannelStore.getChannel(channelId);
 
     console.log("message click!");
