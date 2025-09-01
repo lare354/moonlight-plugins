@@ -14,7 +14,7 @@
   "dependencies": ["spacepack","common"],
   "settings": {
     "useDelete": {
-      "displayName": "Delete",
+      "displayName": "Use Delete instead of Backspace",
       "type": "boolean",
       "default": false,
       "advice": "reload"
