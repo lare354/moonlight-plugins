@@ -6,7 +6,7 @@
   "meta": {
     "name": "Quick Delete",
     "tagline": "streamine deleting messages",
-    "description": "hold backspace + click message to delete it",
+    "description": "hold Dackspace (or optionally Delete) + click message to delete it",
     "tags": ["qol","chat"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
