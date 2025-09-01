@@ -1,18 +1,18 @@
 import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
-/*export const patches: Patch[] = [
+export const patches: Patch[] = [
   {
-    find: '["className","compact","contentOnly","zalgo",',
+    find: '"className","compact","contentOnly","zalgo",',
     replace: {
       match: 'role:"article",onMouseEnter:',
-      replacement: 'role:"article",onClick:(event)=>require("quickDelete_entrypoint")?.default?.(arguments[0].childrenMessageContent.props,event),onMouseEnter:'
+      replacement: 'role:"article",onClick:(event)=>require("quickDelete_entrypoint")?._onClick?.(arguments[0].childrenMessageContent.props,event),onMouseEnter:'
     },
   },
 ];
-*/
+
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
-  action: {
-    entrypoint: [
+  entrypoint: {
+    dependencies: [
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
       { id: "react" },
