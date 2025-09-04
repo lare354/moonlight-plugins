@@ -47,7 +47,6 @@ export function _onClick({ message }: { message: any }, event: MouseEvent) {
         // Checks if user has permission to delete messages in current channel
         const hasPermission = PermissionStore.can(Permissions.MANAGE_MESSAGES, channel);
         if (!hasPermission) {
-            console.log("Cannot delete message");
             return;
         }
     }
