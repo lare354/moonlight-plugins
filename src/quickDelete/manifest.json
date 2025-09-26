@@ -5,8 +5,8 @@
   "apiLevel": 2,
   "meta": {
     "name": "Quick Delete",
-    "tagline": "streamine deleting messages",
-    "description": "hold Dackspace (or optionally Delete) + click message to delete it",
+    "tagline": "streamline deleting messages",
+    "description": "hold Backspace (or optionally Delete) + click message to delete it",
     "tags": ["qol","chat"],
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
