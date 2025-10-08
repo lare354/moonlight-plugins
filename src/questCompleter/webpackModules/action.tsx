@@ -13,7 +13,7 @@ export function completeQuest() {
 
   // https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb
 
-  let quest = [...QuestsStore.quests.values()].find(x => x.id !== "1248385850622869556" && x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now())
+  let quest = [...QuestsStore.quests.values()].find(x => x.id !== "1412491570820812933" && x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now())
   if(!quest) {
     console.log("You don't have any uncompleted quests!")
   } else {
