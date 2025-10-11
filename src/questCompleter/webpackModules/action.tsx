@@ -4,11 +4,12 @@ import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 import { ApplicationStreamingStore, RunningGameStore, QuestsStore, ChannelStore, GuildChannelStore } from "@moonlight-mod/wp/common_stores";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
+import { XSmallIcon, createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
+
 
 const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.Z;
 let isApp = !moonlightNode.isBrowser;
-let hoverStatus = null;
-
+let running = false;
 
 // https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb
 
@@ -52,10 +53,11 @@ export async function completeQuest(quest) {
 			await HTTP.post({ url: `/quests/${quest.id}/video-progress`, body: { timestamp: secondsNeeded } });
 		}
 
-		console.log(`Completed quest: ${questName}`);
+		makeToast(`Completed quest: ${questName}`);
+		
 	} else if (taskName === "PLAY_ON_DESKTOP") {
 		if (!isApp) {
-			console.warn(`Cannot spoof PLAY_ON_DESKTOP for "${questName}" in browser.`);
+			makeToast(`ERROR: Cannot spoof PLAY_ON_DESKTOP for "${questName}" in browser.`);
 		} else {
 			const res = await HTTP.get({ url: `/applications/public?application_ids=${applicationId}` });
 			const appData = res.body[0];
@@ -89,9 +91,9 @@ export async function completeQuest(quest) {
 						? data.userStatus.streamProgressSeconds
 						: Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value);
 
-					console.log(`Quest progress: ${progress}/${secondsNeeded}`);
+					makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
 					if (progress >= secondsNeeded) {
-						console.log(`Completed quest: ${questName}`);
+						makeToast(`Completed quest: ${questName}`);
 						RunningGameStore.getRunningGames = realGetRunningGames;
 						RunningGameStore.getGameForPID = realGetGameForPID;
 						Dispatcher.dispatch({ type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: [] });
@@ -104,7 +106,7 @@ export async function completeQuest(quest) {
 		}
 	} else if (taskName === "STREAM_ON_DESKTOP") {
 		if (!isApp) {
-			console.warn(`Cannot spoof STREAM_ON_DESKTOP for "${questName}" in browser.`);
+			makeToast(`ERROR: Cannot spoof STREAM_ON_DESKTOP for "${questName}" in browser.`);
 		} else {
 			let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata;
 			ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({
@@ -119,9 +121,9 @@ export async function completeQuest(quest) {
 						? data.userStatus.streamProgressSeconds
 						: Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value);
 
-					console.log(`Quest progress: ${progress}/${secondsNeeded}`);
+					makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
 					if (progress >= secondsNeeded) {
-						console.log(`Completed quest: ${questName}`);
+						makeToast(`Completed quest: ${questName}`);
 						ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc;
 						Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
 						resolve();
@@ -139,11 +141,11 @@ export async function completeQuest(quest) {
 		while (true) {
 			const res = await HTTP.post({ url: `/quests/${quest.id}/heartbeat`, body: { stream_key: streamKey, terminal: false } });
 			const progress = res.body.progress.PLAY_ACTIVITY.value;
-			console.log(`Quest progress: ${progress}/${secondsNeeded}`);
+			makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
 
 			if (progress >= secondsNeeded) {
 				await HTTP.post({ url: `/quests/${quest.id}/heartbeat`, body: { stream_key: streamKey, terminal: true } });
-				console.log(`Completed quest: ${questName}`);
+				makeToast(`Completed quest: ${questName}`);
 				break;
 			}
 			await new Promise(resolve => setTimeout(resolve, 20000));
@@ -152,6 +154,11 @@ export async function completeQuest(quest) {
 }
 
 async function startAllQuests() {
+	if (running) {
+		makeToast("Quest completer is already running!");
+		return;	
+	}
+	
 	const allQuests = [...QuestsStore.quests.values()].filter(x =>
 		x.id !== "1248385850622869556" &&
 		x.userStatus?.enrolledAt &&
@@ -160,21 +167,28 @@ async function startAllQuests() {
 	);
 
 	if (allQuests.length === 0) {
-		console.log("All quests are already completed!");
+		running = false;
+		makeToast("All quests are already completed!");
 		return;
 	}
 
-	console.log(`Found ${allQuests.length} uncompleted quest(s). Starting...`);
-
+	makeToast(`Found ${allQuests.length} uncompleted quest(s). Starting...`);
+	
 	for (let quest of allQuests) {
 		try {
+			running = true;
 			await completeQuest(quest);
 		} catch (e) {
-			console.error(`Error completing quest: ${quest.config.messages.questName}`, e);
+			makeToast(`Error completing quest: ${quest.config.messages.questName}`, e);
 		}
 	}
 
-	console.log("All accepted quests have been completed!");
+	running = false;
+	makeToast("All accepted quests have been completed!");
+}
+
+function makeToast(...args: any[]) {
+    showToast(createToast(...args))
 }
 
 function makeIcon() {
@@ -191,8 +205,8 @@ function makeIcon() {
 export function CompleteQuestButtonInternal() {
   return (
     <Button
-      tooltipText={(hoverStatus === null) ? "Complete quest!" : `Quest progress: ${hoverStatus}` }
-      icon={makeIcon()}
+      tooltipText={ "Complete quests! :3" }
+      icon={ makeIcon() }
       role="button"
       plated="plated"
       onClick={ () => startAllQuests() }
