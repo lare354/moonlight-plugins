@@ -14,6 +14,13 @@ let hoverStatus = null;
 
 export async function completeQuest(quest) {
 
+<<<<<<< HEAD
+=======
+  let quest = [...QuestsStore.quests.values()].find(x => x.id !== "1412491570820812933" && x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now())
+  if(!quest) {
+    console.log("You don't have any uncompleted quests!")
+  } else {
+>>>>>>> 4b8768fcd82f89d5a1ed2a78b45a30d855e44348
     const pid = Math.floor(Math.random() * 30000) + 1000
 
     const applicationId = quest.config.application.id
