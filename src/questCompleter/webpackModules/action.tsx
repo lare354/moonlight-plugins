@@ -11,7 +11,10 @@ const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].expor
 let isApp = !moonlightNode.isBrowser;
 let running = false;
 
-// https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb
+// quest completion logic from https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb
+//
+// Toast implementation from https://github.com/Enovale/moonlight-extensions/blob/main/src/orbsAutomation/webpackModules/entrypoint.tsx
+
 
 export async function completeQuest(quest) {
 
