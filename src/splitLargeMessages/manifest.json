@@ -1,0 +1,14 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "splitLargeMessages",
+  "version": "1.0.0",
+  "apiLevel": 2,
+  "meta": {
+    "name": "Split Large Messages",
+    "tagline": "^^ real shi",
+    "tags": ["chat","qol"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  },
+  "dependencies": ["spacepack","common"],
+}
