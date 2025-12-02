@@ -1,11 +1,17 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 import React from '@moonlight-mod/wp/react';
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
-import { ApplicationStreamingStore, RunningGameStore, QuestsStore, ChannelStore, GuildChannelStore } from "@moonlight-mod/wp/common_stores";
+import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannelStore } from "@moonlight-mod/wp/common_stores";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
 import { XSmallIcon, createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
 
+import Commands from "@moonlight-mod/wp/commands_commands";
+import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
+
+let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+webpackChunkdiscord_app.pop();
+let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
 
 const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.Z;
 let isApp = !moonlightNode.isBrowser;
@@ -80,13 +86,20 @@ export async function completeQuest(quest) {
 				start: Date.now(),
 			};
 
-			const realGames = RunningGameStore.getRunningGames();
+			const realGames = RunningGameStore.getRunningGames() ?? [];
 			const fakeGames = [fakeGame];
 			const realGetRunningGames = RunningGameStore.getRunningGames;
 			const realGetGameForPID = RunningGameStore.getGameForPID;
+			
 			RunningGameStore.getRunningGames = () => fakeGames;
 			RunningGameStore.getGameForPID = (pid) => fakeGames.find(x => x.pid === pid);
-			Dispatcher.dispatch({ type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames });
+
+			Dispatcher.dispatch({ 
+				type: "RUNNING_GAMES_CHANGE", 
+				removed: realGames, 
+				added: [fakeGame], 
+				games: fakeGames 
+			});
 
 			await new Promise(resolve => {
 				let fn = (data) => {
@@ -99,7 +112,12 @@ export async function completeQuest(quest) {
 						makeToast(`Completed quest: ${questName}`);
 						RunningGameStore.getRunningGames = realGetRunningGames;
 						RunningGameStore.getGameForPID = realGetGameForPID;
-						Dispatcher.dispatch({ type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: [] });
+						Dispatcher.dispatch({ 
+							type: "RUNNING_GAMES_CHANGE", 
+							removed: [fakeGame], 
+							added: [], 
+							games: [] 
+						});
 						Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
 						resolve();
 					}
@@ -162,12 +180,12 @@ async function startAllQuests() {
 		return;	
 	}
 	
-	const allQuests = [...QuestsStore.quests.values()].filter(x =>
-		x.id !== "1248385850622869556" &&
-		x.userStatus?.enrolledAt &&
-		!x.userStatus?.completedAt &&
-		new Date(x.config.expiresAt).getTime() > Date.now()
-	);
+  	const allQuests = [...QuestsStore.quests.values()].filter(x =>
+    	x.userStatus?.enrolledAt &&
+    	!x.userStatus?.completedAt &&
+    	new Date(x.config.expiresAt).getTime() > Date.now()
+  	);
+
 
 	if (allQuests.length === 0) {
 		running = false;
@@ -223,3 +241,13 @@ export function CompleteQuestButton() {
   </ErrorBoundary>
 }
 
+Commands.registerCommand({
+  id: "quest",
+  description: "quest",
+  inputType: InputType.BUILT_IN,
+  type: CommandType.CHAT,
+  options: [],
+  execute: () => {
+    startAllQuests();
+  }
+});

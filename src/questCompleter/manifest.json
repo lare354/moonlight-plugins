@@ -1,7 +1,7 @@
 {
   "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
   "id": "questCompleter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "apiLevel": 2,
   "meta": {
     "name": "Quest completer",
@@ -11,5 +11,5 @@
     "authors": ["lare"],
     "source": "https://github.com/lare354/moonlight-plugins"
   },
-  "dependencies": ["spacepack","common"]
+  "dependencies": ["spacepack","common","commands"]
 }
