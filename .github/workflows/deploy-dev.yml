@@ -37,4 +37,4 @@ jobs:
       with:
         api_token: ${{ secrets.NEOCITIES_API_KEY }}
         cleanup: false
-        dist_dir: moonlight-exts # Change to fold your site is in, it's set to the root by default
+        dist_dir: ./repo
