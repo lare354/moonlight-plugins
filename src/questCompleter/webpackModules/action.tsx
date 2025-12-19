@@ -174,6 +174,39 @@ export async function completeQuest(quest) {
 	}
 }
 
+async function acceptAllQuests() {
+    const UnacceptedQuests = [...QuestsStore.quests.values()].filter(x =>
+        x.id !== "1412491570820812933" &&
+        x.config?.rewardsConfig?.rewards[0].orbQuantity &&
+        !x.userStatus?.enrolledAt &&
+        !x.userStatus?.completedAt &&
+        new Date(x.config.expiresAt).getTime() > Date.now()
+    );
+    
+    if (UnacceptedQuests.length !== 0) {
+        makeToast(`Found ${UnacceptedQuests.length} unaccepted orbs quests.`);
+
+		for (let quest of UnacceptedQuests) {
+			const response = await HTTP.post({
+				url: `/quests/${quest.id}/enroll`,
+				body: {
+					"location": 11,
+					"is_targeted": false,
+					"metadata_raw": null
+				}
+			});
+
+			if (response.status === 200) {
+				makeToast(`${quest.config.messages.questName} accepted :3`)
+			} else if (response.status === 429) {
+				makeToast('You have been timed out :(')
+			}
+		}
+    }
+
+    makeToast('All orbs quests accepted. Starting B)');
+}
+
 async function startAllQuests() {
 	if (running) {
 		makeToast("Quest completer is already running!");
@@ -231,6 +264,7 @@ export function CompleteQuestButtonInternal() {
       role="button"
       plated="plated"
       onClick={ () => startAllQuests() }
+      onContextMenu={ () => acceptAllQuests() }
     />
   );
 }
