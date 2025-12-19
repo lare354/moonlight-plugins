@@ -32,7 +32,7 @@ jobs:
         run: pnpm run build
       - name: Pack extensions
         env:
-          REPO_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/dev
+          REPO_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
         run: pnpm run repo
 
       - name: Setup GitHub Pages
@@ -41,7 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./repo
+          path: ./repo-dev
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
