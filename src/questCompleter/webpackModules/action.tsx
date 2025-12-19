@@ -177,7 +177,7 @@ export async function completeQuest(quest) {
 async function acceptAllQuests() {
     const UnacceptedQuests = [...QuestsStore.quests.values()].filter(x =>
         x.id !== "1412491570820812933" &&
-        x.rewardsConfig?.rewards?.orbQuantity &&
+        x.config?.rewardsConfig?.rewards[0].orbQuantity &&
         !x.userStatus?.enrolledAt &&
         !x.userStatus?.completedAt &&
         new Date(x.config.expiresAt).getTime() > Date.now()
