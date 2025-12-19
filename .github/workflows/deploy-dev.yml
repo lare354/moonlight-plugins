@@ -33,7 +33,7 @@ jobs:
       env:
         REPO_URL: https://lare354.neocities.org
       run: pnpm run repo
-    - uses: bcomnes/deploy-to-neocities@v1
+    - uses: bcomnes/deploy-to-neocities@v3
       with:
         api_token: ${{ secrets.NEOCITIES_API_KEY }}
         cleanup: false
