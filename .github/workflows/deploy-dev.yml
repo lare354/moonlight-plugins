@@ -5,19 +5,18 @@ on:
     branches:
       - dev
 
-concurrency:
-  group: deploy-to-neocities
-  cancel-in-progress: true
-
 jobs:
   deploy:
     name: Deploy to neocities
     runs-on: ubuntu-latest
+    
     steps:
     - uses: actions/checkout@v4
+    
     - uses: pnpm/action-setup@v4
       with:
         version: 10
+        
     - uses: actions/setup-node@v4
       with:
         node-version: 22
@@ -25,14 +24,17 @@ jobs:
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
+      
     - name: Build extensions
       env:
         NODE_ENV: production
       run: pnpm run build
+      
     - name: Pack extensions
       run: pnpm run repo
+      
     - uses: bcomnes/deploy-to-neocities@v1
       with:
         api_token: ${{ secrets.NEOCITIES_API_KEY }}
         cleanup: false
-        dist_dir: ./repo
+        dist_dir: repo
