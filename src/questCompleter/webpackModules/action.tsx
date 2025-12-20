@@ -204,12 +204,12 @@ async function acceptAllQuests() {
 		}
     }
 
-    makeToast('All orbs quests accepted. Starting B)');
+    makeToast('All orbs quests accepted B)');
 }
 
 async function startAllQuests() {
 	if (running) {
-		makeToast("Quest completer is already running!");
+		makeToast("Quest completer is already running! >:c");
 		return;	
 	}
 	
@@ -275,9 +275,21 @@ export function CompleteQuestButton() {
   </ErrorBoundary>
 }
 
+
+Commands.registerCommand({
+  id: "acceptQuests",
+  description: "Accept Quests",
+  inputType: InputType.BUILT_IN,
+  type: CommandType.CHAT,
+  options: [],
+  execute: () => {
+    acceptAllQuests();
+  }
+});
+
 Commands.registerCommand({
   id: "quest",
-  description: "quest",
+  description: "Run quest completer",
   inputType: InputType.BUILT_IN,
   type: CommandType.CHAT,
   options: [],
