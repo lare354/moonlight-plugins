@@ -1,14 +1,16 @@
 import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
-export const patches: Patch[] = [
-  {
-    find: "shouldShowSpeakingWhileMutedTooltip",
-    replace: {
-      match: /className:\i\.buttons,.{0,50}children:\[/,
-      replacement: "$&require('questCompleter_action').CompleteQuestButton(),"
-    },
-  },
-];
+
+//export const patches: Patch[] = [
+//  {
+//    find: "shouldShowSpeakingWhileMutedTooltip",
+//    replace: {
+//      match: /className:\i\.buttons,.{0,50}children:\[/,
+//      replacement: "$&require('questCompleter_action').CompleteQuestButton(),"
+//    },
+//  },
+//];
+
 
 export const webpackModules: Record<string, ExtensionWebpackModule> = {
   action: {
@@ -23,5 +25,6 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { id: "react" },
       { ext: "commands", id: "commands" },
     ],
+    entrypoint: true,
   },
 };
