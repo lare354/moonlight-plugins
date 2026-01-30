@@ -18,9 +18,7 @@ if(!QuestsStore) {
 	QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
 }
 
-
-
-const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.A;
+// const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.A;
 
 let isApp = !moonlightNode.isBrowser;
 let running = false;
