@@ -4,8 +4,8 @@ export const patches: Patch[] = [
   {
     find: "shouldShowSpeakingWhileMutedTooltip",
     replace: {
-      match: /className:\i\.buttons,.{0,50}children:\[/,
-      replacement: "$&require('questCompleter_action').CompleteQuestButton(),"
+      match: /children:\[(?=.{0,25}?accountContainerRef)/,
+      replacement: "children:[require('questCompleter_action').CompleteQuestButton(),"
     },
   },
 ];

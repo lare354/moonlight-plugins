@@ -11,9 +11,15 @@ import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/comm
 
 let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
 webpackChunkdiscord_app.pop();
-let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
 
-const Button = spacepack.findByCode(".NONE,disabled:", ".PANEL_BUTTON")[0].exports.Z;
+let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest).exports.A;
+
+if(!QuestsStore) {
+	QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
+}
+
+const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:")[0].exports.A;
+
 let isApp = !moonlightNode.isBrowser;
 let running = false;
 
