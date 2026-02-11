@@ -23,5 +23,6 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { id: "react" },
       { ext: "commands", id: "commands" },
     ],
+    entrypoint: true,
   },
 };
