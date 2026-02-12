@@ -2,10 +2,10 @@ import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
 export const patches: Patch[] = [
   {
-    find: "#{intl::ACCOUNT_SPEAKING_WHILE_MUTED}",
+    find: "shouldShowSpeakingWhileMutedTooltip:",
     replace: {
       match: /children:\[(?=.{0,25}?accountContainerRef)/,
-      replacement: "children:[require('questCompleter_action').CompleteQuestButton(arguments[0]),"
+      replacement: "children:[require('questCompleter_action').CompleteQuestButton(),"
     },
   },
 ];
@@ -23,6 +23,5 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { id: "react" },
       { ext: "commands", id: "commands" },
     ],
-    entrypoint: true,
   },
 };
