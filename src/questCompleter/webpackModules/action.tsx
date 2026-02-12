@@ -18,7 +18,7 @@ if(!QuestsStore) {
 	QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
 }
 
-const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:")[0].exports.A;
+const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:").exports.A;
 
 let isApp = !moonlightNode.isBrowser;
 let running = false;
