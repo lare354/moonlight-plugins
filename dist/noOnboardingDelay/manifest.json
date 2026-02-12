@@ -1,0 +1,14 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "noOnboardingDelay",
+  "version": "1.0.0",
+  "apiLevel": 2,
+  "meta": {
+    "name": "No Onboarding Delay",
+    "tagline": "Remove the slow and annoying onboarding delay",
+    "description": "Ported from vencord",
+    "tags": ["qol"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  }
+}

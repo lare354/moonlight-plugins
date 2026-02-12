@@ -1,0 +1,29 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "meow",
+  "version": "1.0.0",
+  "apiLevel": 2,
+  "meta": {
+    "name": "meow",
+    "tagline": "meow (or bark :p) in chat",
+    "description": "hehe meow button on chatbar",
+    "tags": ["chat","fun"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  },
+  "dependencies": ["spacepack","common","componentEditor"],
+  "settings": {
+    "meow": {
+      "displayName": "meow",
+      "type": "boolean",
+      "default": true,
+      "advice": "reload"
+    },
+   "woof": {
+      "displayName": "woof",
+      "type": "boolean",
+      "default": false,
+      "advice": "reload"
+    } 
+  }
+}

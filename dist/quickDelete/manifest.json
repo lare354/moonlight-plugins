@@ -1,0 +1,23 @@
+{
+  "$schema": "https://moonlight-mod.github.io/manifest.schema.json",
+  "id": "quickDelete",
+  "version": "1.0.3",
+  "apiLevel": 2,
+  "meta": {
+    "name": "Quick Delete",
+    "tagline": "streamline deleting messages",
+    "description": "hold Backspace (or optionally Delete) + click message to delete it",
+    "tags": ["qol","chat"],
+    "authors": ["lare"],
+    "source": "https://github.com/lare354/moonlight-plugins"
+  },
+  "dependencies": ["spacepack","common"],
+  "settings": {
+    "useDelete": {
+      "displayName": "Use Delete instead of Backspace",
+      "type": "boolean",
+      "default": false,
+      "advice": "reload"
+    }
+  }
+}
