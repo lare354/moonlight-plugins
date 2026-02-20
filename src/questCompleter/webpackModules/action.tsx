@@ -14,10 +14,6 @@ webpackChunkdiscord_app.pop();
 
 let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest).exports.A;
 
-if(!QuestsStore) {
-	QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.Z?.__proto__?.getQuest).exports.Z;
-}
-
 const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:")[0].exports.A;
 
 let isApp = !moonlightNode.isBrowser;
@@ -76,7 +72,7 @@ export async function completeQuest(quest) {
 		} else {
 			const res = await HTTP.get({ url: `/applications/public?application_ids=${applicationId}` });
 			const appData = res.body[0];
-			const exeName = appData.executables.find(x => x.os === "win32").name.replace(">", "");
+			const exeName = appData.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? appData.name.replace(/[\/\\:*?"<>|]/g, "");
 
 			const fakeGame = {
 				cmdLine: `C:\\Program Files\\${appData.name}\\${exeName}`,
