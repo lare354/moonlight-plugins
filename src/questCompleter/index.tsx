@@ -2,7 +2,7 @@ import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
 export const patches: Patch[] = [
   {
-    find: "shouldShowSpeakingWhileMutedTooltip:",
+    find: ".PureComponent{speakingWhileMutedTooltipTimeout=new",
     replace: {
       match: /children:\[(?=.{0,25}?accountContainerRef)/,
       replacement: "children:[require('questCompleter_action').CompleteQuestButton(),"
