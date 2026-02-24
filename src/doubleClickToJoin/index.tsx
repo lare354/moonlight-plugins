@@ -3,7 +3,7 @@ import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 export const patches: Patch[] = [
   {
     // voice and stage channels (thank you Nanakusa :3)
-    find: ".iconContainerWithGuildIcon", 
+    find: ".healthy,pending:", 
     replace: [ 
       {
       	match: ".link,onClick:", 
@@ -49,7 +49,7 @@ export const patches: Patch[] = [
   },
   {
     // activity tab
-    find: '.voiceSection,ref',
+    find: '.__invalid_headerDetails,children:[(',
     replace: [
       {
         match: /onClick:\s?\(\)\s?=>/g,
