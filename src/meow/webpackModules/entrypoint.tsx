@@ -1,4 +1,3 @@
-
 import { SelectedChannelStore, ChannelStore } from "@moonlight-mod/wp/common_stores";
 import ChatButtonList from "@moonlight-mod/wp/componentEditor_chatButtonList";
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
@@ -6,10 +5,11 @@ import React from "@moonlight-mod/wp/react";
 import { Tooltip } from "@moonlight-mod/wp/discord/components/common/index";
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 
+
 const { sendMessage } = spacepack.require("discord/actions/MessageActionCreators").default;
 const ChatBarButton = spacepack.findByCode("CHAT_INPUT_BUTTON_NOTIFICATION,width")[0].exports.A;
-const ButtonStyles = spacepack.findByCode(",expressionPicker")[1].exports.A;
-const getNonce = spacepack.findByCode(".fromTimestampWithSequence")[0].exports.r;
+const ButtonStyles = spacepack.findByCode(",expressionPickerPositionLayer:")[0].exports;
+const getNonce = Object.values(spacepack.findByCode(".fromTimestampWithSequence")[0].exports)[0];
 
 const meowMsgs = ["meow", "mew", "nyan", "nya", "myaow", "mreow", "mrow"];
 const woofMsgs = ["woof", "arf", "bark", "wruff", "ruff", "awruff"];
@@ -76,5 +76,5 @@ if (meowBtn){
 }
 
 if (woofBtn){
-  ChatButtonList.addButton("woofButton", WoofButton, "gif", true);  
+  ChatButtonList.addButton("meowButton", WoofButton, "gif", true);  
 }

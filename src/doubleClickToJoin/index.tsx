@@ -3,11 +3,11 @@ import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 export const patches: Patch[] = [
   {
     // voice and stage channels (thank you Nanakusa :3)
-    find: ".healthy,pending:", 
+    find: ".isGuildVocal(),", 
     replace: [ 
       {
-      	match: ".link,onClick:", 
-	    replacement: () => `.link,onClick:()=>require("doubleClickToJoin_action")?._handleClick(arguments[0]),onDoubleClick:`,
+      	match: ",onClick:()=>", 
+	    replacement: () => `,onClick:()=>require("doubleClickToJoin_action")?._handleClick(arguments[0]),onDoubleClick:`,
       }, 
     ], 
   },
