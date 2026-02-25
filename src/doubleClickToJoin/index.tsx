@@ -7,7 +7,7 @@ export const patches: Patch[] = [
     replace: [ 
       {
       	match: ",onClick:()=>", 
-	    replacement: () => `,onClick:()=>require("doubleClickToJoin_action")?._handleClick(arguments[0]),onDoubleClick:`,
+	    replacement: () => `,onClick:()=>require("doubleClickToJoin_action")?._handleClick(arguments[0]),onDoubleClick:()=>`,
       }, 
     ], 
   },
