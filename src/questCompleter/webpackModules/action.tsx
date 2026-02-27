@@ -1,18 +1,13 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 import React from '@moonlight-mod/wp/react';
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
-import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannelStore } from "@moonlight-mod/wp/common_stores";
+import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannelStore, QuestStore} from "@moonlight-mod/wp/common_stores";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
 import { XSmallIcon, createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
 
 import Commands from "@moonlight-mod/wp/commands_commands";
 import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
-
-let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
-webpackChunkdiscord_app.pop();
-
-let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest).exports.A;
 
 const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:")[0].exports.A;
 
@@ -177,7 +172,7 @@ export async function completeQuest(quest) {
 }
 
 async function acceptAllQuests() {
-    const UnacceptedQuests = [...QuestsStore.quests.values()].filter(x =>
+    const UnacceptedQuests = [...QuestStore.quests.values()].filter(x =>
         x.id !== "1412491570820812933" &&
         x.config?.rewardsConfig?.rewards[0].orbQuantity &&
         !x.userStatus?.enrolledAt &&
@@ -215,7 +210,7 @@ async function startAllQuests() {
 		return;	
 	}
 	
-  	const allQuests = [...QuestsStore.quests.values()].filter(x =>
+  	const allQuests = [...QuestStore.quests.values()].filter(x =>
     	x.userStatus?.enrolledAt &&
     	!x.userStatus?.completedAt &&
     	new Date(x.config.expiresAt).getTime() > Date.now()
