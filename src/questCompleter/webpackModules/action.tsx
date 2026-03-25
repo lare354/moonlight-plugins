@@ -4,7 +4,7 @@ import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannelStore, QuestStore} from "@moonlight-mod/wp/common_stores";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
-import { XSmallIcon, createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
+import { createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
 
 import Commands from "@moonlight-mod/wp/commands_commands";
 import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
