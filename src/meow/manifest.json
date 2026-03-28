@@ -19,7 +19,7 @@
       "default": true,
       "advice": "reload"
     },
-   "woof": {
+    "woof": {
       "displayName": "woof",
       "type": "boolean",
       "default": false,
