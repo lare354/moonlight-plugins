@@ -7,10 +7,10 @@ import { Tooltip, createToast, showToast } from "@moonlight-mod/wp/discord/compo
 import { InputType, CommandType, OptionType } from "@moonlight-mod/types/coreExtensions/commands";
 
 
-const sendMessage = spacepack.require("discord/actions/MessageActionCreators").default;
+const { sendMessage } = spacepack.require("discord/actions/MessageActionCreators").default;
 const ChatBarButton = spacepack.findByCode("CHAT_INPUT_BUTTON_NOTIFICATION,width")[0].exports.A;
 //const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:")[0].exports.A;
-const getNonce = Object.values(spacepack.findByCode(".fromTimestampWithSequence")[0].exports)[0];
+const getNonce = Object.values(spacepack.findByCode(".fromTimestampWithSequence")[1].exports)[0];
 const DraftType = spacepack.findByCode("ChannelMessage", "SlashCommand", "ThreadSettings", "FirstThreadMessage")[0].exports.C;
 const UploadManager = spacepack.findByCode('dispatch({type:"UPLOAD_ATTACHMENT_CLEAR_ALL_FILES",channelId:')[0].exports.A;
 
@@ -28,7 +28,7 @@ function makeToast(...args: any[]) {
 
 function sendTextToChat(text: string) {
     const channelId = SelectedChannelStore.getChannelId();
-    sendMessage(channelId, { content: text });
+    sendMessage(channelId, { content: text }, void 0, { nonce: getNonce() });
 };
 
 

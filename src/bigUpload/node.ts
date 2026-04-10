@@ -61,7 +61,7 @@ export async function uploadFileToLitterboxNative(_, fileBuffer: ArrayBuffer, fi
 
         formData.append("reqtype", "fileupload");
 
-        formData.append(time, time);
+        formData.append("time", "24h");
 
         const file = new Blob([fileBuffer], { type: fileType });
         formData.append("fileToUpload", new File([file], fileName));
