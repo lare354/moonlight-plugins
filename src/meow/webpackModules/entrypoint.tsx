@@ -9,7 +9,7 @@ import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 const { sendMessage } = spacepack.require("discord/actions/MessageActionCreators").default;
 const ChatBarButton = spacepack.findByCode("CHAT_INPUT_BUTTON_NOTIFICATION,width")[0].exports.A;
 const ButtonStyles = spacepack.findByCode(",expressionPickerPositionLayer:")[0].exports;
-const getNonce = Object.values(spacepack.findByCode(".fromTimestampWithSequence")[0].exports)[0];
+const getNonce = Object.values(spacepack.findByCode(".fromTimestampWithSequence")[1].exports)[0];
 
 const meowMsgs = ["meow", "mew", "nyan", "nya", "myaow", "mreow", "mrow"];
 const woofMsgs = ["woof", "arf", "bark", "wruff", "ruff", "awruff"];
@@ -71,10 +71,10 @@ function WoofButton() {
 }
 
 if (meowBtn){
-  ChatButtonList.addButton("meowButton", MeowButton, "gif", true);
+  ChatButtonList.addButton("meowButton_meow", MeowButton, "gif", true);
   
 }
 
 if (woofBtn){
-  ChatButtonList.addButton("meowButton", WoofButton, "gif", true);  
+  ChatButtonList.addButton("meowButton_woof", WoofButton, "gif", true);  
 }
