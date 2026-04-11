@@ -24,15 +24,6 @@ interface GoFileResponse {
     error?: string;
 }
 
-type LoggingLevel = "errors" | "info" | "debug";
-const levelPriority: Record<LoggingLevel, number> = {
-    errors: 0,
-    info: 1,
-    debug: 2
-};
-
-let currentLoggingLevel: LoggingLevel = "errors";
-
 // Uploaders that don't support EXE files
 const EXE_BLOCKED_UPLOADERS = ["Catbox", "Litterbox", "0x0.st"];
 const EXE_FALLBACK_UPLOADER = "GoFile";
@@ -55,7 +46,6 @@ function isExeFile(fileName: string): boolean {
 
 function getEffectiveUploader(fileName: string, selectedUploader: string): string {
     if (isExeFile(fileName) && EXE_BLOCKED_UPLOADERS.includes(selectedUploader)) {
-        nativeLog.info(`[BigFileUpload] ${selectedUploader} doesn't support EXE files, using ${EXE_FALLBACK_UPLOADER} instead`);
         return EXE_FALLBACK_UPLOADER;
     }
     return selectedUploader;
@@ -101,7 +91,6 @@ function applyEmbedService(url: string, service: string | undefined): string {
 
     if (!isEmbeddableVideoForService(url, svc)) {
         const extensions = EMBED_SERVICE_EXTENSIONS[svc] || EMBED_SERVICE_EXTENSIONS.x266;
-        nativeLog.debug(`[BigFileUpload] Skipping embed service - URL must end with ${extensions.join(", ")}: ${url}`);
         return url;
     }
 
@@ -183,37 +172,31 @@ function validateUploadUrl(url: string): boolean {
 
         // Must be http or https
         if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-            nativeLog.warn(`[BigFileUpload] Invalid URL protocol: ${parsed.protocol}`);
             return false;
         }
 
         // Must have a valid hostname
         if (!parsed.hostname || parsed.hostname.length < 3) {
-            nativeLog.warn(`[BigFileUpload] Invalid URL hostname: ${parsed.hostname}`);
             return false;
         }
 
         // SSRF protection: reject private/reserved IPs and localhost
         if (isPrivateOrReservedIP(parsed.hostname)) {
-            nativeLog.warn(`[BigFileUpload] Blocked private/reserved IP in URL: ${parsed.hostname}`);
             return false;
         }
 
         // Reject hostnames that are just numbers (likely IP obfuscation)
         if (/^\d+$/.test(parsed.hostname)) {
-            nativeLog.warn(`[BigFileUpload] Blocked numeric-only hostname: ${parsed.hostname}`);
             return false;
         }
 
         // Hostname should contain at least one dot (basic TLD check)
         if (!parsed.hostname.includes(".")) {
-            nativeLog.warn(`[BigFileUpload] Invalid hostname (no TLD): ${parsed.hostname}`);
             return false;
         }
 
         return true;
     } catch {
-        nativeLog.warn(`[BigFileUpload] Invalid URL format: ${url.substring(0, 100)}`);
         return false;
     }
 }
@@ -255,7 +238,6 @@ function sanitizeHeaders(headers: Record<string, string>): Record<string, string
 
         // Skip blocked headers
         if (BLOCKED_HEADERS.has(lowerKey)) {
-            nativeLog.warn(`[BigFileUpload] Blocked dangerous header: ${key}`);
             continue;
         }
 
@@ -268,7 +250,6 @@ function sanitizeHeaders(headers: Record<string, string>): Record<string, string
         if (typeof value === "string" && !value.includes("\n") && !value.includes("\r")) {
             sanitized[key] = value;
         } else {
-            nativeLog.warn(`[BigFileUpload] Blocked header with invalid value: ${key}`);
         }
     }
 
@@ -283,7 +264,6 @@ function parseJsonSafe<T>(json: string | undefined, defaultValue: T): T {
     try {
         return JSON.parse(json);
     } catch {
-        nativeLog.warn(`[BigFileUpload] Failed to parse JSON: ${json.substring(0, 100)}`);
         return defaultValue;
     }
 }
@@ -358,7 +338,6 @@ function extractUrlFromResponse(responseText: string, responseType: string, urlP
             for (const path of commonFields) {
                 const value = navigateJsonPath(parsed, path);
                 if (typeof value === "string" && (value.startsWith("http") || value.startsWith("/"))) {
-                    nativeLog.debug(`[BigFileUpload] Auto-detected URL at path: ${path.join(".")}`);
                     return resolveUrl(value, baseUrl);
                 }
             }
@@ -392,7 +371,6 @@ function extractUrlFromResponse(responseText: string, responseType: string, urlP
     if (matches && matches.length > 0) {
         // Prefer longer URLs (more likely to be the actual file URL)
         const bestMatch = matches.reduce((a, b) => a.length >= b.length ? a : b);
-        nativeLog.debug(`[BigFileUpload] Extracted URL from text response: ${bestMatch}`);
         return bestMatch;
     }
 
@@ -434,24 +412,6 @@ function resolveUrl(url: string, baseUrl?: string): string {
     return url;
 }
 
-const nativeLog = {
-    info: (...args: any[]) => {
-        if (levelPriority[currentLoggingLevel] >= levelPriority.info) {
-            console.log(...args);
-        }
-    },
-    debug: (...args: any[]) => {
-        if (levelPriority[currentLoggingLevel] >= levelPriority.debug) {
-            console.debug(...args);
-        }
-    },
-    warn: (...args: any[]) => console.warn(...args),
-    error: (...args: any[]) => console.error(...args)
-};
-
-function updateLoggingLevel(level?: LoggingLevel) {
-    currentLoggingLevel = level ?? "errors";
-}
 
 /**
  * Save ArrayBuffer to temporary file (fallback when file.path not available)
@@ -512,12 +472,10 @@ async function raceToFirstSuccess<T>(
 async function deleteTempFile(filePath: string): Promise<void> {
     try {
         await fs.promises.unlink(filePath);
-        nativeLog.debug(`[BigFileUpload] Temp file deleted: ${filePath}`);
     } catch (error) {
         // Log cleanup errors at debug level to help diagnose orphaned temp files
         // Don't throw - cleanup failure shouldn't break the upload flow
         const errorMsg = error instanceof Error ? error.message : String(error);
-        nativeLog.debug(`[BigFileUpload] Failed to delete temp file ${filePath}: ${errorMsg}`);
     }
 }
 
@@ -617,7 +575,6 @@ function streamFilePutUpload(
                 // Security: Limit response size to prevent memory exhaustion
                 if (responseData.length + chunk.length > MAX_RESPONSE_SIZE) {
                     if (!responseTruncated) {
-                        nativeLog.warn(`[BigFileUpload] Response exceeded ${MAX_RESPONSE_SIZE} bytes, truncating`);
                         responseTruncated = true;
                     }
                     return; // Stop accumulating data
@@ -917,7 +874,7 @@ function streamFileBinaryCustom(
             headers: {
                 "Content-Type": fileType || "application/octet-stream",
                 "Content-Length": fileSize,
-                "User-Agent": "Vencord-BigFileUpload/1.0",
+                "User-Agent": "moonlight-BigUpload/1.0",
                 ...sanitizedHeaders
             }
         };
@@ -954,7 +911,6 @@ function streamFileBinaryCustom(
             res.on("data", chunk => {
                 if (responseData.length + chunk.length > MAX_RESPONSE_SIZE) {
                     if (!responseTruncated) {
-                        nativeLog.warn(`[BigFileUpload] Response exceeded ${MAX_RESPONSE_SIZE} bytes, truncating`);
                         responseTruncated = true;
                     }
                     return;
@@ -1250,7 +1206,6 @@ function streamFileUpload(
                 // Security: Limit response size to prevent memory exhaustion
                 if (responseData.length + chunk.length > MAX_RESPONSE_SIZE) {
                     if (!responseTruncated) {
-                        nativeLog.warn(`[BigFileUpload] Response exceeded ${MAX_RESPONSE_SIZE} bytes, truncating`);
                         responseTruncated = true;
                     }
                     return; // Stop accumulating data
@@ -1551,7 +1506,7 @@ export async function uploadFileToGofileNative(event: Electron.IpcMainInvokeEven
             "file",
             fields,
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -1611,7 +1566,7 @@ export async function uploadFileToCatboxNative(event: Electron.IpcMainInvokeEven
             "fileToUpload",
             fields,
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -1663,7 +1618,7 @@ export async function uploadFileToLitterboxNative(event: Electron.IpcMainInvokeE
             "fileToUpload",
             fields,
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -1705,7 +1660,7 @@ export async function uploadFileToTransferShNative(event: Electron.IpcMainInvoke
         }
 
         const customHeaders: Record<string, string> = {
-            "User-Agent": "Vencord-BigFileUpload/1.0"
+            "User-Agent": "moonlight-BigUpload/1.0"
         };
 
         // Add Max-Days header if specified
@@ -1771,7 +1726,7 @@ export async function uploadFileToTempShNative(event: Electron.IpcMainInvokeEven
             "file",
             {},
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -1820,7 +1775,7 @@ export async function uploadFileToTmpFilesNative(event: Electron.IpcMainInvokeEv
             "file",
             {},
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -1885,7 +1840,7 @@ export async function uploadFileToFilebinNative(event: Electron.IpcMainInvokeEve
             "file",
             {},
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -1933,7 +1888,7 @@ export async function uploadFileToBuzzheavierNative(event: Electron.IpcMainInvok
             filePath,
             fileName,
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -2002,7 +1957,7 @@ export async function uploadFileToFileIoNative(event: Electron.IpcMainInvokeEven
             "file",
             {},
             {
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -2063,7 +2018,7 @@ export async function uploadFileTo0x0StNative(event: Electron.IpcMainInvokeEvent
             {
                 // 0x0.st blocks Mozilla/* and browser-like UAs
                 // Use a simple custom identifier as recommended by the 0x0.st admin
-                "User-Agent": "VencordBigFileUpload/1.0"
+                "User-Agent": "moonlight-BigUpload/1.0"
             },
             event.sender,
             uploadId,
@@ -2125,7 +2080,6 @@ export async function uploadFileCustomNative(
 
         if (body === "Binary") {
             // Binary upload: raw file body with PUT/PATCH/POST
-            nativeLog.info(`[BigFileUpload] Custom uploader using ${method} with binary body`);
 
             // Sanitize custom headers
             const headers = sanitizeHeaders(customHeaders);
@@ -2143,7 +2097,6 @@ export async function uploadFileCustomNative(
             );
         } else {
             // Multipart form data upload (default)
-            nativeLog.info("[BigFileUpload] Custom uploader using POST with multipart form data");
 
             // Filter out empty keys
             const fields: Record<string, string> = {};
@@ -2168,7 +2121,7 @@ export async function uploadFileCustomNative(
                 fields,
                 {
                     ...headers,
-                    "User-Agent": "Vencord-BigFileUpload/1.0"
+                    "User-Agent": "moonlight-BigUpload/1.0"
                 },
                 event.sender,
                 uploadId,
@@ -2221,21 +2174,16 @@ export async function uploadFileBuffer(
         customUploaderHeaders?: string;
         customUploaderRequestMethod?: string;
         customUploaderBodyType?: string;
-        loggingLevel?: LoggingLevel;
         uploadTimeout?: number;
         useEmbedsVideo?: string;
         embedService?: string;
         disableFallbacks?: boolean;
     }
 ): Promise<{ success: boolean; url?: string; fileName?: string; fileSize?: number; uploadId?: string; error?: string; actualUploader?: string; attemptedUploaders?: string[]; }> {
-    updateLoggingLevel(uploaderSettings.loggingLevel);
     const uploadTimeout = safeUploadTimeout(uploaderSettings.uploadTimeout);
-    nativeLog.info(`[BigFileUpload NATIVE] uploadFileBuffer called for: ${fileName} (type: ${mimeType})`);
-    nativeLog.info(`[BigFileUpload NATIVE] Received uploader setting: "${uploaderSettings.fileUploader}"`);
 
     try {
         const fileSize = buffer.byteLength;
-        nativeLog.info(`[BigFileUpload] Uploading from buffer: ${fileName} (${(fileSize / 1024 / 1024).toFixed(1)}MB)`);
 
         // Define fallback uploaders in order based on user's preference
         // Order: Catbox, Litterbox, 0x0.st, tmpfiles.org, GoFile, buzzheavier, temp.sh, filebin.net
@@ -2253,7 +2201,6 @@ export async function uploadFileBuffer(
         // Start with the selected uploader, with EXE file handling
         const selectedUploader = uploaderSettings.fileUploader || "Catbox";
         const primaryUploader = getEffectiveUploader(fileName, selectedUploader);
-        nativeLog.info(`[BigFileUpload NATIVE] Primary uploader will be: ${primaryUploader}`);
 
         // Build the list of uploaders to try (primary + fallbacks)
         const uploadersToTry = [primaryUploader];
@@ -2266,7 +2213,6 @@ export async function uploadFileBuffer(
         const fallbacksDisabled = uploaderSettings.disableFallbacks === true;
 
         if (fallbacksDisabled) {
-            nativeLog.info(`[BigFileUpload] Fallbacks disabled by user setting - only using ${primaryUploader}`);
         } else if (!isExclusiveUploader) {
             // Add fallbacks for standard uploaders
             const isExe = isExeFile(fileName);
@@ -2276,14 +2222,9 @@ export async function uploadFileBuffer(
                     uploadersToTry.push(fallback);
                 }
             }
-        } else {
-            nativeLog.info(`[BigFileUpload] ${primaryUploader} is exclusive - no fallback uploaders will be used`);
         }
 
-        nativeLog.info(`[BigFileUpload] Will try uploaders in order: ${uploadersToTry.join(", ")}`);
-
         const uploadId = `upload-${crypto.randomUUID()}`;
-        nativeLog.debug(`[BigFileUpload NATIVE] Upload ID: ${uploadId}`);
 
         // Clean up this ID from cancelled set if it exists (shouldn't happen but be safe)
         cancelledUploads.delete(uploadId);
@@ -2455,20 +2396,13 @@ export async function uploadFileBuffer(
         for (const uploader of uploadersToTry) {
             const attemptNumber = attemptedUploaders.length + 1;
             const totalAttempts = uploadersToTry.length;
-            nativeLog.info(`[BigFileUpload] Trying uploader: ${uploader} (attempt ${attemptNumber}/${totalAttempts})`);
 
             // Show attempt info at info level
-            if (attemptNumber === 1) {
-                nativeLog.info(`[BigFileUpload] Starting upload to ${uploader}`);
-            } else {
-                nativeLog.info(`[BigFileUpload] Retrying with ${uploader} (attempt ${attemptNumber}/${totalAttempts})`);
-            }
 
             // Check if any background retry has already succeeded before starting this attempt
             if (backgroundRetries.length > 0) {
                 const backgroundWinner = await raceToFirstSuccess(backgroundRetries.map(r => r.promise));
                 if (backgroundWinner) {
-                    nativeLog.info(`[BigFileUpload] ✅ Background retry succeeded with ${backgroundWinner.uploader}!`);
                     let finalUrl = backgroundWinner.url;
                     if (uploaderSettings.useEmbedsVideo === "Yes") {
                         finalUrl = applyEmbedService(backgroundWinner.url, uploaderSettings.embedService);
@@ -2489,7 +2423,6 @@ export async function uploadFileBuffer(
             }
 
             try {
-                nativeLog.debug(`[BigFileUpload NATIVE] Trying ${uploader}`);
                 const uploadResult = await tryUploader(uploader, false);
 
                 // Format URL if requested
@@ -2503,7 +2436,6 @@ export async function uploadFileBuffer(
                 }
 
                 // Keep progress for completion message - renderer will clear it via completeUpload()
-                nativeLog.info(`[BigFileUpload] ✅ Upload successful with ${uploader}! File: ${fileName} (${(fileSize / 1024 / 1024).toFixed(2)}MB) → ${uploadResult}`);
 
                 return {
                     success: true,
@@ -2520,7 +2452,6 @@ export async function uploadFileBuffer(
 
                 // Stop retrying if user cancelled - check BEFORE logging/notifying
                 if (errorMessage.toLowerCase().includes("upload cancelled by user")) {
-                    nativeLog.info("[BigFileUpload] Upload cancelled by user, aborting retries");
                     clearProgress();
                     return {
                         success: false,
@@ -2529,11 +2460,9 @@ export async function uploadFileBuffer(
                     };
                 }
 
-                nativeLog.error(`[BigFileUpload] Upload failed with ${uploader}:`, error);
                 lastError = new Error(`[${uploader}] ${errorMessage}`);
                 attemptedUploaders.push(uploader);
 
-                nativeLog.debug(`[BigFileUpload] Error details for ${uploader}: ${errorMessage}`);
 
                 let shortError = errorMessage;
                 if (errorMessage.length > 100) {
@@ -2559,16 +2488,13 @@ export async function uploadFileBuffer(
 
                 // Start background retry for this failed uploader (only once, not for Custom)
                 if (uploader !== "Custom" && !backgroundRetries.some(r => r.uploader === uploader)) {
-                    nativeLog.info(`[BigFileUpload] Starting background retry for ${uploader}`);
                     const retryPromise = (async (): Promise<{ url: string; uploader: string; } | null> => {
                         // Small delay to let the next primary uploader get a head start
                         await new Promise(r => setTimeout(r, 1000));
                         try {
                             const url = await tryUploader(uploader, true);
-                            nativeLog.info(`[BigFileUpload] Background retry succeeded for ${uploader}`);
                             return { url, uploader };
                         } catch (retryError) {
-                            nativeLog.debug(`[BigFileUpload] Background retry failed for ${uploader}:`, retryError);
                             return null;
                         }
                     })();
@@ -2578,7 +2504,6 @@ export async function uploadFileBuffer(
                 // Reset progress for next attempt
                 if (!isLastUploader) {
                     const nextUploader = uploadersToTry[attemptedUploaders.length];
-                    nativeLog.warn(`[BigFileUpload] ${uploader} failed. Trying ${nextUploader}...`);
 
                     if (latestProgress && latestProgress.uploadId === uploadId) {
                         latestProgress = {
@@ -2592,26 +2517,14 @@ export async function uploadFileBuffer(
                     }
                 }
 
-                // Log specific error types
-                if (errorMessage.toLowerCase().includes("read") && errorMessage.toLowerCase().includes("image")) {
-                    nativeLog.error(`[BigFileUpload] IMAGE READ ERROR from ${uploader}: ${errorMessage}`);
-                } else if (errorMessage.includes("412") || errorMessage.includes("415") ||
-                    errorMessage.includes("Bad file type") || errorMessage.includes("Unsupported Media Type")) {
-                    nativeLog.warn(`[BigFileUpload] File type rejected by ${uploader}`);
-                } else if (errorMessage.includes("File not found") || errorMessage.includes("empty") || errorMessage.includes("not readable")) {
-                    nativeLog.error(`[BigFileUpload] FILE ACCESS ERROR: ${errorMessage}`);
-                }
-
                 // If this was the last uploader, check background retries one more time before giving up
                 if (isLastUploader) {
-                    nativeLog.info("[BigFileUpload] All primary uploaders exhausted, waiting for background retries...");
                     // Give background retries a chance to finish (up to 30 seconds)
                     const finalCheck = await Promise.race([
                         raceToFirstSuccess(backgroundRetries.map(r => r.promise)),
                         new Promise<null>(r => setTimeout(() => r(null), 30000))
                     ]);
                     if (finalCheck) {
-                        nativeLog.info(`[BigFileUpload] ✅ Background retry saved the day with ${finalCheck.uploader}!`);
                         let finalUrl = finalCheck.url;
                         if (uploaderSettings.useEmbedsVideo === "Yes") {
                             finalUrl = applyEmbedService(finalCheck.url, uploaderSettings.embedService);
@@ -2629,14 +2542,12 @@ export async function uploadFileBuffer(
                             attemptedUploaders: [...attemptedUploaders, finalCheck.uploader]
                         };
                     }
-                    nativeLog.warn("[BigFileUpload] No more uploaders to try and no background retries succeeded");
                     break;
                 }
             }
         }
 
         // All uploaders failed
-        nativeLog.error(`[BigFileUpload] All uploaders failed. Attempted: ${attemptedUploaders.join(", ")}`);
         clearProgress(); // Only clear on final failure
 
         return {
@@ -2647,7 +2558,6 @@ export async function uploadFileBuffer(
     } catch (outerError) {
         // Catch any errors that happen outside the upload loop
         // This ensures we always return a proper result object
-        nativeLog.error("[BigFileUpload] Unexpected error in uploadFileBuffer:", outerError);
         clearProgress();
         return {
             success: false,
@@ -2713,7 +2623,6 @@ export async function pickAndUploadFile(
     if (uploaderSettings.respectNitroLimit) {
         const nitroLimit = NITRO_LIMITS[uploaderSettings.nitroTier || "none"] || NITRO_LIMITS.none;
         if (fileSize <= nitroLimit) {
-            nativeLog.info(`[BigFileUpload] File under Nitro limit (${(fileSize / 1024 / 1024).toFixed(1)}MB <= ${(nitroLimit / 1024 / 1024).toFixed(0)}MB), using Discord native upload`);
             // Read file into buffer for renderer to pass to Discord's UploadManager
             const fileBuffer = await fs.promises.readFile(filePath);
             return {
@@ -2725,9 +2634,6 @@ export async function pickAndUploadFile(
             };
         }
     }
-
-    nativeLog.info(`[BigFileUpload] Securely uploading: ${fileName} (${(fileSize / 1024 / 1024).toFixed(1)}MB)`);
-    nativeLog.debug(`[BigFileUpload] File path (main process only): ${filePath}`);
 
     // Define fallback uploaders in order based on user's preference
     // Order: Catbox, Litterbox, 0x0.st, tmpfiles.org, GoFile, buzzheavier, temp.sh, filebin.net
@@ -2757,19 +2663,13 @@ export async function pickAndUploadFile(
     // Check if user has disabled fallbacks globally
     const fallbacksDisabled = uploaderSettings.disableFallbacks === true;
 
-    if (fallbacksDisabled) {
-        nativeLog.info(`[BigFileUpload] Fallbacks disabled by user setting - only using ${primaryUploader}`);
-    } else if (!isExclusiveUploader) {
+    if (!isExclusiveUploader) {
         for (const fallback of FALLBACK_UPLOADERS) {
             if (fallback !== primaryUploader && fallback !== "Custom" && !(isExe && EXE_BLOCKED_UPLOADERS.includes(fallback))) {
                 uploadersToTry.push(fallback);
             }
         }
-    } else {
-        nativeLog.info(`[BigFileUpload] ${primaryUploader} is exclusive - no fallback uploaders will be used`);
     }
-
-    nativeLog.info(`[BigFileUpload] Will try uploaders in order: ${uploadersToTry.join(", ")}`);
 
     const uploadId = `upload-${crypto.randomUUID()}`;
 
@@ -2796,21 +2696,12 @@ export async function pickAndUploadFile(
     for (const uploader of uploadersToTry) {
         const attemptNumber = attemptedUploaders.length + 1;
         const totalAttempts = uploadersToTry.length;
-        nativeLog.info(`[BigFileUpload] Trying uploader: ${uploader} (attempt ${attemptNumber}/${totalAttempts})`);
-
-        // Show attempt info at info level
-        if (attemptNumber === 1) {
-            nativeLog.info(`[BigFileUpload] Starting upload to ${uploader}`);
-        } else {
-            nativeLog.info(`[BigFileUpload] Retrying with ${uploader} (attempt ${attemptNumber}/${totalAttempts})`);
-        }
 
         try {
             let uploadResult: string;
 
             switch (uploader) {
                 case "GoFile": {
-                    nativeLog.debug("[BigFileUpload] Trying GoFile");
                     const gofileResult = await uploadFileToGofileNative(
                         event,
                         filePath,
@@ -2834,7 +2725,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "Catbox": {
-                    nativeLog.debug("[BigFileUpload] Trying Catbox");
                     const catboxResult = await uploadFileToCatboxNative(
                         event,
                         "https://catbox.moe/user/api.php",
@@ -2850,7 +2740,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "Litterbox": {
-                    nativeLog.debug("[BigFileUpload] Trying Litterbox");
                     const litterboxResult = await uploadFileToLitterboxNative(
                         event,
                         filePath,
@@ -2865,7 +2754,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "temp.sh": {
-                    nativeLog.debug("[BigFileUpload] Trying temp.sh");
                     const tempShResult = await uploadFileToTempShNative(
                         event,
                         filePath,
@@ -2878,7 +2766,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "0x0.st": {
-                    nativeLog.debug("[BigFileUpload] Trying 0x0.st");
                     const zeroX0StResult = await uploadFileTo0x0StNative(
                         event,
                         filePath,
@@ -2892,7 +2779,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "tmpfiles.org": {
-                    nativeLog.debug("[BigFileUpload] Trying tmpfiles.org");
                     const tmpFilesResult = await uploadFileToTmpFilesNative(
                         event,
                         filePath,
@@ -2905,7 +2791,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "filebin.net": {
-                    nativeLog.debug("[BigFileUpload] Trying filebin.net");
                     const filebinResult = await uploadFileToFilebinNative(
                         event,
                         filePath,
@@ -2918,7 +2803,6 @@ export async function pickAndUploadFile(
                 }
 
                 case "buzzheavier.com": {
-                    nativeLog.debug("[BigFileUpload] Trying buzzheavier.com");
                     const buzzheavierResult = await uploadFileToBuzzheavierNative(
                         event,
                         filePath,
@@ -2985,7 +2869,6 @@ export async function pickAndUploadFile(
             }
 
             // Return success result
-            nativeLog.info(`[BigFileUpload] ✅ Upload successful with ${uploader}! File: ${fileName} (${(fileSize / 1024 / 1024).toFixed(2)}MB) → ${uploadResult}`);
 
             return {
                 success: true,
@@ -3002,7 +2885,6 @@ export async function pickAndUploadFile(
 
             // Stop immediately if user cancelled - no error notification needed
             if (errorMessage.toLowerCase().includes("upload cancelled by user")) {
-                nativeLog.info("[BigFileUpload] Upload cancelled by user, aborting");
                 if (latestProgress && latestProgress.uploadId === uploadId) {
                     latestProgress = undefined;
                     latestProgressTimestamp = 0;
@@ -3014,7 +2896,6 @@ export async function pickAndUploadFile(
                 };
             }
 
-            nativeLog.error(`[BigFileUpload] Upload failed with ${uploader}:`, error);
 
             // Create detailed error with service name included
             lastError = new Error(`[${uploader}] ${errorMessage}`);
@@ -3050,7 +2931,6 @@ export async function pickAndUploadFile(
 
             // Otherwise, continue to the next uploader (notification already sent above)
             const nextUploader = uploadersToTry[attemptedUploaders.length];
-            nativeLog.warn(`[BigFileUpload] ${uploader} failed. Will retry with ${nextUploader}`);
             console.warn(`[BigFileUpload] Upload failed with ${uploader}, retrying with ${nextUploader}...`);
 
             // Reset progress to 0 since we're starting over with a new service
@@ -3068,7 +2948,6 @@ export async function pickAndUploadFile(
     }
 
     // All uploaders failed
-    nativeLog.error(`[BigFileUpload] All uploaders failed. Attempted: ${attemptedUploaders.join(", ")}`);
     clearProgress(); // Only clear on final failure
 
     return {
@@ -3111,7 +2990,6 @@ function sendNotification(_event: Electron.IpcMainInvokeEvent | null, notificati
         pendingNotifications.shift();
     }
 
-    nativeLog.debug("[BigFileUpload] Notification queued:", notification);
 }
 
 /**
@@ -3140,16 +3018,12 @@ export function getLatestProgress(): any {
     if (latestProgress && latestProgressTimestamp > 0) {
         const age = Date.now() - latestProgressTimestamp;
         if (age > STALE_PROGRESS_TIMEOUT) {
-            nativeLog.warn(`[BigFileUpload] Clearing stale progress data (${Math.round(age / 1000)}s old)`);
             latestProgress = null;
             latestProgressTimestamp = 0;
             return null;
         }
     }
 
-    if (latestProgress) {
-        nativeLog.debug("[NATIVE] getLatestProgress returning:", latestProgress.percent + "%");
-    }
     return latestProgress;
 }
 
@@ -3165,7 +3039,6 @@ export function clearProgress(): void {
  * Cancel an active upload by upload ID
  */
 export function cancelUpload(_event: Electron.IpcMainInvokeEvent, uploadId: string): { success: boolean; error?: string; } {
-    nativeLog.info(`[BigFileUpload] Cancelling upload: ${uploadId}`);
 
     // Mark upload as cancelled to prevent any further progress updates
     cancelledUploads.add(uploadId);
@@ -3173,7 +3046,6 @@ export function cancelUpload(_event: Electron.IpcMainInvokeEvent, uploadId: stri
     // Clean up from cancelled set after a delay to prevent memory leak
     setTimeout(() => {
         cancelledUploads.delete(uploadId);
-        nativeLog.debug(`[BigFileUpload] Cleaned up cancelled upload ID: ${uploadId}`);
     }, 30000); // Clean up after 30 seconds
 
     // Immediately clear progress if it matches this upload
@@ -3199,15 +3071,12 @@ export function cancelUpload(_event: Electron.IpcMainInvokeEvent, uploadId: stri
 
             // Remove from active requests
             activeRequests.delete(uploadId);
-            nativeLog.info(`[BigFileUpload] Upload ${uploadId} cancelled successfully`);
             return { success: true };
         } catch (error) {
-            nativeLog.error(`[BigFileUpload] Error cancelling upload ${uploadId}:`, error);
             return { success: false, error: error instanceof Error ? error.message : String(error) };
         }
     } else {
         // Even if no active upload, ensure it's marked as cancelled to prevent zombie progress
-        nativeLog.warn(`[BigFileUpload] No active upload found for ID: ${uploadId}, but marked as cancelled`);
         return { success: true }; // Still return success since we've marked it as cancelled
     }
 }
