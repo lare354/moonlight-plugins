@@ -31,8 +31,18 @@ function sendTextToChat(text: string) {
     sendMessage(channelId, { content: text }, void 0, { nonce: getNonce() });
 };
 
+// Helper function to safely get error messages
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    if (typeof error === "string") {
+        return error;
+    }
+    return String(error);
+}
 
-async function resolveFile(options: Argument[], channelId: string): Promise<File | null> {
+async function resolveFile(options: any[], channelId: any): Promise<File | null> {
     for (const opt of options) {
         if (opt.name === "file") {
             const upload = UploadAttachmentStore.getUpload(channelId, opt.name, DraftType.SlashCommand);
@@ -43,165 +53,100 @@ async function resolveFile(options: Argument[], channelId: string): Promise<File
 };
 
 
-async function uploadFileToGofile(file: File, channelId: string) {
+/**
+ * Catbox upload
+ */
+async function uploadFileToCatboxWithStreaming(file: File, channelId: string) {
+    console.log(`[Catbox] Starting upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+
+    const url = "https://catbox.moe/user/api.php";
+    const userHash = "";
+
     try {
+        console.log("[Catbox] Converting file to ArrayBuffer...");
         const arrayBuffer = await file.arrayBuffer();
-        const fileName = file.name;
-        const fileType = file.type;
+        console.log(`[Catbox] ArrayBuffer conversion completed (${arrayBuffer.byteLength} bytes)`);
+        console.log(`[Catbox] Uploading ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
 
-        const serverResponse = await fetch("https://api.gofile.io/servers");
-        const serverData = await serverResponse.json();
-        const server = serverData.data.servers[Math.floor(Math.random() * serverData.data.servers.length)].name;
-
-        const uploadResult = await Natives.uploadFileToGofileNative(`https://${server}.gofile.io/uploadFile`, arrayBuffer, fileName, fileType);
-
-        if ((uploadResult as any).status === "ok") {
-            const { downloadPage } = (uploadResult as any).data;
-            setTimeout(() => sendTextToChat(`${downloadPage} `), 10);
-            UploadManager.clearAll(channelId, DraftType.SlashCommand);
-        }
-        else {
-            console.error("Unable to upload file. This is likely an issue with your network connection, firewall, or VPN.", uploadResult);
-            makeToast("File Upload Failed");
-            UploadManager.clearAll(channelId, DraftType.SlashCommand);
-        }
-    } catch (error) {
-        console.error("Unable to upload file. This is likely an issue with your network connection, firewall, or VPN.", error);
-        makeToast("File Upload Failed");
-        UploadManager.clearAll(channelId, DraftType.SlashCommand);
-    }
-};
-
-
-async function uploadFileToCatbox(file: File, channelId: string) {
-    try {
-        const url = "https://catbox.moe/user/api.php";
-        //const userHash = settings.store.catboxUserHash;
-        const userHash = "";
-        const fileSizeMB = file.size / (1024 * 1024);
-
-        const arrayBuffer = await file.arrayBuffer();
-        const fileName = file.name;
-
-        const uploadResult = await Natives.uploadFileToCatboxNative(url, arrayBuffer, fileName, file.type);
+        const uploadResult = await Natives.uploadFileToCatboxNative(
+            url,
+            arrayBuffer,
+            file.name,
+            file.type,
+            userHash
+        );
 
         if (uploadResult.startsWith("https://") || uploadResult.startsWith("http://")) {
-            const videoExtensions = [".mp4", ".mkv", ".webm", ".avi", ".mov", ".flv", ".wmv", ".m4v", ".mpg", ".mpeg", ".3gp", ".ogv"];
             let finalUrl = uploadResult;
-
-            if (fileSizeMB >= 150 && videoExtensions.some(ext => finalUrl.endsWith(ext))) {
-                finalUrl = `https://embeds.video/${finalUrl}`;
-            }
 
             setTimeout(() => sendTextToChat(`${finalUrl} `), 10);
-            makeToast("File Successfully Uploaded!");
+            showToast(`${file.name} Successfully Uploaded to Catbox!`, Toasts.Type.SUCCESS);
             UploadManager.clearAll(channelId, DraftType.SlashCommand);
         } else {
-            console.error("Unable to upload file. This is likely an issue with your network connection, firewall, or VPN.", uploadResult);
-            makeToast("File Upload Failed");
-            UploadManager.clearAll(channelId, DraftType.SlashCommand);
+            throw new Error(`Catbox upload failed: ${uploadResult}`);
         }
-    } catch (error) {
-        console.error("Unable to upload file. This is likely an issue with your network connection, firewall, or VPN.", error);
-        makeToast("File Upload Failed");
-        UploadManager.clearAll(channelId, DraftType.SlashCommand);
+    } catch (nativeError) {
+        throw new Error(`Catbox streaming upload failed: ${getErrorMessage(nativeError)}`);
     }
-};
+}
 
+/**
+ * Litterbox upload
+ */
+async function uploadFileToLitterboxWithStreaming(file: File, channelId: string) {
+    console.log(`[Litterbox] Starting upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
 
-async function uploadFileToLitterbox(file: File, channelId: string) {
+    const expireTime = "24h";
+
     try {
+        console.log("[Litterbox] Converting file to ArrayBuffer...");
         const arrayBuffer = await file.arrayBuffer();
-        const fileName = file.name;
-        const fileType = file.type;
-        const fileSizeMB = file.size / (1024 * 1024);
-        //const time = settings.store.litterboxTime;
-        const time = "24h";
+        console.log(`[Litterbox] ArrayBuffer conversion completed (${arrayBuffer.byteLength} bytes)`);
+        console.log(`[Litterbox] Uploading ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
 
-        const uploadResult = await Natives.uploadFileToLitterboxNative(arrayBuffer, fileName, fileType, time);
+        const uploadResult = await Natives.uploadFileToLitterboxNative(
+            arrayBuffer,
+            file.name,
+            file.type,
+            expireTime
+        );
 
         if (uploadResult.startsWith("https://") || uploadResult.startsWith("http://")) {
-            const videoExtensions = [".mp4", ".mkv", ".webm", ".avi", ".mov", ".flv", ".wmv", ".m4v", ".mpg", ".mpeg", ".3gp", ".ogv"];
             let finalUrl = uploadResult;
 
-            if (fileSizeMB >= 150 && videoExtensions.some(ext => finalUrl.endsWith(ext))) {
-                finalUrl = `https://embeds.video/${finalUrl}`;
-            }
-
             setTimeout(() => sendTextToChat(`${finalUrl}`), 10);
-            makeToast("File Successfully Uploaded!");
+            showToast(`${file.name} Successfully Uploaded to Litterbox!`, Toasts.Type.SUCCESS);
             UploadManager.clearAll(channelId, DraftType.SlashCommand);
         } else {
-            console.error("Unable to upload file. This is likely an issue with your network connection, firewall, or VPN.", uploadResult);
-            makeToast("File Upload Failed");
-            UploadManager.clearAll(channelId, DraftType.SlashCommand);
+            throw new Error(`Litterbox upload failed: ${uploadResult}`);
         }
-    } catch (error) {
-        console.error("Unable to upload file. This is likely an issue with your network connection, firewall, or VPN.", error);
-        makeToast("File Upload Failed");
-        UploadManager.clearAll(channelId, DraftType.SlashCommand);
+    } catch (nativeError) {
+        throw new Error(`Litterbox streaming upload failed: ${getErrorMessage(nativeError)}`);
     }
-};
-
+}
 
 async function uploadFile(file: File, channelId: string) {
-    switch (uploadService) {
-        case "Gofile":
-            await uploadFileToGofile(file, channelId);
-            break;
-        case "Catbox":
-            await uploadFileToCatbox(file, channelId);
-            break;
-        case "Litterbox":
-            await uploadFileToLitterbox(file, channelId);
-            break;
-        default:
-            makeToast("Error: invalid uploader");
-            UploadManager.clearAll(channelId, DraftType.SlashCommand);
-    }
-};
+    const fileSizeMB = file.size / (1024 * 1024);
+
+    console.log(`[BigFileUpload] Starting upload for file: ${file.name}`);
+    console.log(`[BigFileUpload] File size: ${file.size} bytes (${fileSizeMB.toFixed(1)}MB)`);
 
 
-function triggerFileUpload() {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.style.display = "none";
-
-    fileInput.onchange = async event => {
-        const target = event.target as HTMLInputElement;
-        if (target && target.files && target.files.length > 0) {
-            const file = target.files[0];
-            if (file) {
-                const channelId = SelectedChannelStore.getChannelId();
-                await uploadFile(file, channelId);
-            } else {
-                makeToast("No file selected");
-            }
+    // Use streaming upload functions with timeout
+    const uploadPromise = (() => {
+        switch (uploadService) {
+            case "Gofile":
+                return uploadFileToGofileWithStreaming(file, channelId);
+            case "Catbox":
+                return uploadFileToCatboxWithStreaming(file, channelId);
+            case "Litterbox":
+                return uploadFileToLitterboxWithStreaming(file, channelId);
+            default:
+                makeToast("Error: invalid uploader");
         }
-    };
+    })();
+}
 
-    document.body.appendChild(fileInput);
-    fileInput.click();
-    document.body.removeChild(fileInput);
-};
-
-
-const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
-    if (props.channel.guild_id && !PermissionStore.can(Permissions.SEND_MESSAGES, props.channel)) return;
-
-    children.splice(1, 0,
-        <Menu.MenuItem
-            id="upload-big-file"
-            label={
-                <div className={OptionClasses.optionLabel}>
-                    <OpenExternalIcon className={OptionClasses.optionIcon} height={24} width={24} />
-                    <div className={OptionClasses.optionName}>Upload a Big File</div>
-                </div>
-            }
-            action={triggerFileUpload}
-        />
-    );
-};
 
 
 Commands.registerCommand({
@@ -228,14 +173,3 @@ Commands.registerCommand({
   }
 });
 
-
-Commands.registerCommand({
-  id: "test",
-  description: "test",
-  inputType: InputType.BUILT_IN,
-  type: CommandType.CHAT,
-  options: [],
-  execute: () => {
-    console.log("Test");
-  }
-});
