@@ -2,6 +2,7 @@ import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannelStore, QuestStore} from "@moonlight-mod/wp/common_stores";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
+import React from "@moonlight-mod/wp/react";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
 //import { createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
 const { createToast, showToast } = spacepack.findByCode("createToast")[0];

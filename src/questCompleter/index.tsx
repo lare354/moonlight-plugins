@@ -16,6 +16,7 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { ext: "spacepack", id: "spacepack" },
       { ext: "common", id: "stores" },
       { ext: "common", id: "ErrorBoundary" },
+      { id: "react" },
       { id: "discord/components/common/PanelButton" },
       { id: "discord/Dispatcher" },
       { id: "discord/utils/HTTPUtils" },
