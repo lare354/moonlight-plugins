@@ -4,10 +4,11 @@ import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannel
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
 //import { createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
-import { createToast, showToast } from "";
+const { createToast, showToast } = spacepack.findByCode("createToast")[0];
 
 import Commands from "@moonlight-mod/wp/commands_commands";
-const { InputType, CommandType } from spacepack.findByCode("createToast")[0];
+import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
+
 const Button = spacepack.findByCode(".GREEN,positionKeyStemOverride:")[0].exports.A;
 
 let isApp = !moonlightNode.isBrowser;
