@@ -1,5 +1,4 @@
 import spacepack from "@moonlight-mod/wp/spacepack_spacepack";
-import React from '@moonlight-mod/wp/react';
 import ErrorBoundary from '@moonlight-mod/wp/common_ErrorBoundary';
 import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannelStore, QuestStore} from "@moonlight-mod/wp/common_stores";
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";

@@ -20,7 +20,6 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { id: "discord/components/common/PanelButton" },
       { id: "discord/Dispatcher" },
       { id: "discord/utils/HTTPUtils" },
-      { id: "react" },
       { ext: "commands", id: "commands" },
     ],
   },
