@@ -52,8 +52,8 @@ export const patches: Patch[] = [
     find: '.__invalid_headerDetails,children:[(',
     replace: [
       {
-        match: /onClick:\s?\(\)\s?=>/g,
-        replacement: `onClick:()=>null,onDoubleClick:()=>`,
+        match: /onClick:\(\)=>{(?=[a-zA-Z]+.default.selectVoiceChannel\()/g,
+        replacement: `onClick:()=>null,onDoubleClick:()=>{`,
       },
     ],
   },
