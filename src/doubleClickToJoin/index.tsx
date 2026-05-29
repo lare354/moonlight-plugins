@@ -1,5 +1,6 @@
 import { ExtensionWebpackModule, Patch } from "@moonlight-mod/types";
 
+
 export const patches: Patch[] = [
   {
     // voice and stage channels (thank you Nanakusa :3)
@@ -52,8 +53,8 @@ export const patches: Patch[] = [
     find: '.__invalid_headerDetails,children:[(',
     replace: [
       {
-        match: /onClick:\s?\(\)\s?=>/g,
-        replacement: `onClick:()=>null,onDoubleClick:()=>`,
+        match: /onClick:\(\)=>{(?=[a-zA-Z]+.default.selectVoiceChannel\()/g,
+        replacement: `onClick:()=>null,onDoubleClick:()=>{`,
       },
     ],
   },
