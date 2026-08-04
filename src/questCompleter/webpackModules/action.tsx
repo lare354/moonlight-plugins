@@ -42,7 +42,7 @@ export async function completeQuest(quest) {
 			await new Promise(resolve => setTimeout(resolve, remaining * 1000));
 			const timestamp = secondsDone + speed;
 
-			const res = await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}});
+			const res = await HTTP.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}});
 			completed = res.body.completed_at != null;
 			secondsDone = Math.min(secondsNeeded, timestamp);
 
