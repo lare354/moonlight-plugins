@@ -21,6 +21,9 @@ export const webpackModules: Record<string, ExtensionWebpackModule> = {
       { id: "discord/Dispatcher" },
       { id: "discord/utils/HTTPUtils" },
       { ext: "commands", id: "commands" },
+      { id: "discord/design/components/Toast/web/Toast" },
+      { id: "discord/design/components/Toast/web/ToastAPI" },
+      { id: "discord/design/components/Toast/web/ToastConstants" },
     ],
   },
 };
