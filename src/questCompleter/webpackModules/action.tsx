@@ -4,8 +4,10 @@ import { ApplicationStreamingStore, RunningGameStore, ChannelStore, GuildChannel
 import Dispatcher from "@moonlight-mod/wp/discord/Dispatcher";
 import React from "@moonlight-mod/wp/react";
 const { HTTP } = spacepack.require("discord/utils/HTTPUtils");
-//import { createToast, showToast } from "@moonlight-mod/wp/discord/components/common/index";
-//const { createToast, showToast } = spacepack.findByCode("createToast")[0];
+
+import { createToast } from "@moonlight-mod/wp/discord/design/components/Toast/web/Toast";
+import { popToast, showToast } from "@moonlight-mod/wp/discord/design/components/Toast/web/ToastAPI";
+import { ToastType } from "@moonlight-mod/wp/discord/design/components/Toast/web/ToastConstants";
 
 import Commands from "@moonlight-mod/wp/commands_commands";
 import { InputType, CommandType } from "@moonlight-mod/types/coreExtensions/commands";
@@ -17,8 +19,7 @@ let running = false;
 
 // quest completion logic from https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb
 //
-// Toast implementation from https://github.com/Enovale/moonlight-extensions/blob/main/src/orbsAutomation/webpackModules/entrypoint.tsx
-
+// Toast implementation from https://github.com/Cynosphere/moonlight-extensions/src/inAppNotifications/webpackModules/notification.tsx
 
 export async function completeQuest(quest) {
 
@@ -53,11 +54,11 @@ export async function completeQuest(quest) {
 			await HTTP.post({ url: `/quests/${quest.id}/video-progress`, body: { timestamp: secondsNeeded } });
 		}
 
-// 		makeToast(`Completed quest: ${questName}`);
+ 		makeToast(`Completed quest: ${questName}`);
 		
 	} else if (taskName === "PLAY_ON_DESKTOP") {
 		if (!isApp) {
-// 			makeToast(`ERROR: Cannot spoof PLAY_ON_DESKTOP for "${questName}" in browser.`);
+ 			makeToast(`ERROR: Cannot spoof PLAY_ON_DESKTOP for "${questName}" in browser.`);
 		} else {
 			const res = await HTTP.get({ url: `/applications/public?application_ids=${applicationId}` });
 			const appData = res.body[0];
@@ -98,9 +99,9 @@ export async function completeQuest(quest) {
 						? data.userStatus.streamProgressSeconds
 						: Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value);
 
-// 					makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
+ 					makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
 					if (progress >= secondsNeeded) {
-// 						makeToast(`Completed quest: ${questName}`);
+ 						makeToast(`Completed quest: ${questName}`);
 						RunningGameStore.getRunningGames = realGetRunningGames;
 						RunningGameStore.getGameForPID = realGetGameForPID;
 						Dispatcher.dispatch({ 
@@ -118,7 +119,7 @@ export async function completeQuest(quest) {
 		}
 	} else if (taskName === "STREAM_ON_DESKTOP") {
 		if (!isApp) {
-// 			makeToast(`ERROR: Cannot spoof STREAM_ON_DESKTOP for "${questName}" in browser.`);
+ 			makeToast(`ERROR: Cannot spoof STREAM_ON_DESKTOP for "${questName}" in browser.`);
 		} else {
 			let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata;
 			ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({
@@ -133,9 +134,9 @@ export async function completeQuest(quest) {
 						? data.userStatus.streamProgressSeconds
 						: Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value);
 
-// 					makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
+ 					makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
 					if (progress >= secondsNeeded) {
-// 						makeToast(`Completed quest: ${questName}`);
+ 						makeToast(`Completed quest: ${questName}`);
 						ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc;
 						Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
 						resolve();
@@ -153,11 +154,11 @@ export async function completeQuest(quest) {
 		while (true) {
 			const res = await HTTP.post({ url: `/quests/${quest.id}/heartbeat`, body: { stream_key: streamKey, terminal: false } });
 			const progress = res.body.progress.PLAY_ACTIVITY.value;
-// 			makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
+ 			makeToast(`Quest progress: ${progress}/${secondsNeeded}`);
 
 			if (progress >= secondsNeeded) {
 				await HTTP.post({ url: `/quests/${quest.id}/heartbeat`, body: { stream_key: streamKey, terminal: true } });
-// 				makeToast(`Completed quest: ${questName}`);
+ 				makeToast(`Completed quest: ${questName}`);
 				break;
 			}
 			await new Promise(resolve => setTimeout(resolve, 20000));
@@ -175,7 +176,7 @@ async function acceptAllQuests() {
     );
     
     if (UnacceptedQuests.length !== 0) {
-//         makeToast(`Found ${UnacceptedQuests.length} unaccepted orbs quests.`);
+         makeToast(`Found ${UnacceptedQuests.length} unaccepted orbs quests.`);
 
 		for (let quest of UnacceptedQuests) {
 			const response = await HTTP.post({
@@ -188,19 +189,19 @@ async function acceptAllQuests() {
 			});
 
 			if (response.status === 200) {
-// 				makeToast(`${quest.config.messages.questName} accepted :3`)
+ 				makeToast(`${quest.config.messages.questName} accepted :3`)
 			} else if (response.status === 429) {
-// 				makeToast('You have been timed out :(')
+ 				makeToast('You have been timed out :(')
 			}
 		}
     }
 
-//     makeToast('All orbs quests accepted B)');
+     makeToast('All orbs quests accepted B)');
 }
 
 async function startAllQuests() {
 	if (running) {
-// 		makeToast("Quest completer is already running! >:c");
+ 		makeToast("Quest completer is already running! >:c");
 		return;	
 	}
 	
@@ -213,29 +214,29 @@ async function startAllQuests() {
 
 	if (allQuests.length === 0) {
 		running = false;
-// 		makeToast("All quests are already completed!");
+ 		makeToast("All quests are already completed!");
 		return;
 	}
 
-// 	makeToast(`Found ${allQuests.length} uncompleted quest(s). Starting...`);
+ 	makeToast(`Found ${allQuests.length} uncompleted quest(s). Starting...`);
 	
 	for (let quest of allQuests) {
 		try {
 			running = true;
 			await completeQuest(quest);
 		} catch (e) {
-// 			makeToast(`Error completing quest: ${quest.config.messages.questName}`, e);
+ 			makeToast(`Error completing quest: ${quest.config.messages.questName}`, e);
 		}
 	}
 
 	running = false;
-// 	makeToast("All accepted quests have been completed!");
+ 	makeToast("All accepted quests have been completed!");
 }
 
 
-// function makeToast(...args: any[]) {
-//     showToast(createToast(...args))
-// }
+ function makeToast(...args: any[]) {
+     showToast(createToast(...args))
+ }
 
 function makeIcon() {
   return () => (
