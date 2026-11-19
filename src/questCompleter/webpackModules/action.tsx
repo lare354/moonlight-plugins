@@ -233,7 +233,7 @@ async function startAllQuests() {
 
 
 function makeToast(...args: any[]) {
-     showToast(createToast(...args))
+  showToast(createToast(...args))
 }
 
 function makeIcon() {
